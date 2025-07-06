@@ -1,4 +1,4 @@
-# GitHub 프로젝트 대시보드
+# https://pistolinkr.com
 
 ## 🚀 주요 기능
 
