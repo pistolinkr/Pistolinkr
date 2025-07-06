@@ -201,36 +201,32 @@ class GitHubDashboard {
     }
 
     async loadRepositories() {
-        const username = this.settings.githubUsername;
+        // 항상 pistolinkr 계정 사용
+        const username = 'pistolinkr';
+        this.settings.githubUsername = username;
+        // 이하 기존 코드 유지
         if (!username) {
             this.showSettingsModal();
             return;
         }
-
         this.showLoading(true);
-
         try {
             const headers = {};
             if (this.settings.githubToken) {
                 headers['Authorization'] = `token ${this.settings.githubToken}`;
             }
-
             const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, {
                 headers: headers
             });
-
             if (!response.ok) {
                 throw new Error(`GitHub API 오류: ${response.status}`);
             }
-
             this.repos = await response.json();
             this.filteredRepos = [...this.repos];
-            
             this.updateStatistics();
             this.updateLanguageFilter();
             this.renderProjects();
             this.showLoading(false);
-
         } catch (error) {
             console.error('프로젝트 로드 오류:', error);
             this.showError('프로젝트를 불러오는 중 오류가 발생했습니다. 설정을 확인해주세요.');
@@ -451,7 +447,6 @@ class GitHubDashboard {
 
     showSettingsModal() {
         const modal = document.getElementById('settingsModal');
-        document.getElementById('githubUsername').value = this.settings.githubUsername || '';
         document.getElementById('githubToken').value = this.settings.githubToken || '';
         document.getElementById('autoRefresh').checked = this.settings.autoRefresh || false;
         
@@ -467,7 +462,7 @@ class GitHubDashboard {
     }
 
     saveSettings() {
-        this.settings.githubUsername = document.getElementById('githubUsername').value.trim();
+        // this.settings.githubUsername = document.getElementById('githubUsername').value.trim(); // 제거
         this.settings.githubToken = document.getElementById('githubToken').value.trim();
         this.settings.autoRefresh = document.getElementById('autoRefresh').checked;
 
@@ -484,7 +479,6 @@ class GitHubDashboard {
     loadSettings() {
         const saved = localStorage.getItem('githubDashboardSettings');
         return saved ? JSON.parse(saved) : {
-            githubUsername: '',
             githubToken: '',
             autoRefresh: false
         };
