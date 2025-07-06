@@ -126,11 +126,20 @@ class GitHubDashboard {
     }
 
     handleLogin() {
+        const name = document.getElementById('loginName').value.trim();
         const password = document.getElementById('loginPassword').value;
         const loginError = document.getElementById('loginError');
-        
+        const allowedNames = ['성동영', '박상현'];
+        if (!allowedNames.includes(name)) {
+            loginError.style.display = 'flex';
+            loginError.querySelector('span').textContent = '허용된 이름이 아닙니다.';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginPassword').blur();
+            document.getElementById('loginName').focus();
+            return;
+        }
+        // 기존 비밀번호 검증 로직
         if (password === this.adminPassword) {
-            // 관리자 로그인
             sessionStorage.setItem('githubDashboardLoggedIn', 'true');
             sessionStorage.setItem('githubDashboardAdmin', 'true');
             this.isLoggedIn = true;
@@ -139,7 +148,6 @@ class GitHubDashboard {
             document.getElementById('loginPassword').value = '';
             loginError.style.display = 'none';
         } else if (password === this.correctPassword) {
-            // 일반 사용자 로그인
             sessionStorage.setItem('githubDashboardLoggedIn', 'true');
             sessionStorage.setItem('githubDashboardAdmin', 'false');
             this.isLoggedIn = true;
@@ -149,6 +157,7 @@ class GitHubDashboard {
             loginError.style.display = 'none';
         } else {
             loginError.style.display = 'flex';
+            loginError.querySelector('span').textContent = '잘못된 이름 또는 비밀번호입니다.';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginPassword').focus();
         }
