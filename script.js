@@ -308,7 +308,14 @@ class GitHubDashboard {
         const projectsGrid = document.getElementById('projectsGrid');
         projectsGrid.innerHTML = '';
 
-        if (this.filteredRepos.length === 0) {
+        // 숨김 필터 적용
+        const filtered = this.filteredRepos.filter(repo => {
+            const settings = this.loadProjectSettings(repo.name);
+            if (!this.isAdmin && settings && settings.hiddenForUser) return false;
+            return true;
+        });
+
+        if (filtered.length === 0) {
             projectsGrid.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
                     <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
@@ -319,7 +326,7 @@ class GitHubDashboard {
             return;
         }
 
-        this.filteredRepos.forEach(repo => {
+        filtered.forEach(repo => {
             const card = this.createProjectCard(repo);
             projectsGrid.appendChild(card);
         });
@@ -591,37 +598,31 @@ class GitHubDashboard {
         const projectUrl = document.getElementById('projectUrl').value;
         const projectDescription = document.getElementById('projectDescription').value;
         const projectStatus = document.getElementById('projectStatus').value;
-
+        const hiddenForUser = document.getElementById('projectHiddenForUser').checked;
         if (!projectName) {
             alert('프로젝트를 선택해주세요.');
             return;
         }
-
         if (!projectUrl) {
             alert('도메인 URL을 입력해주세요.');
             return;
         }
-
-        // URL 유효성 검사
         try {
             new URL(projectUrl);
         } catch {
             alert('올바른 URL을 입력해주세요.');
             return;
         }
-
         const settings = localStorage.getItem('projectSettings');
         const projectSettings = settings ? JSON.parse(settings) : {};
-        
         projectSettings[projectName] = {
             url: projectUrl,
             description: projectDescription,
             status: projectStatus,
+            hiddenForUser: hiddenForUser,
             updatedAt: new Date().toISOString()
         };
-
         localStorage.setItem('projectSettings', JSON.stringify(projectSettings));
-        
         alert('프로젝트 설정이 저장되었습니다.');
         this.loadConfiguredProjects();
     }
@@ -652,18 +653,16 @@ class GitHubDashboard {
 
     loadProjectSettings() {
         const projectName = document.getElementById('projectSelect').value;
-        
         if (!projectName) {
             this.clearProjectForm();
             return;
         }
-
         const settings = this.loadProjectSettings(projectName);
-        
         if (settings) {
             document.getElementById('projectUrl').value = settings.url || '';
             document.getElementById('projectDescription').value = settings.description || '';
             document.getElementById('projectStatus').value = settings.status || 'active';
+            document.getElementById('projectHiddenForUser').checked = !!settings.hiddenForUser;
         } else {
             this.clearProjectForm();
         }
@@ -673,6 +672,7 @@ class GitHubDashboard {
         document.getElementById('projectUrl').value = '';
         document.getElementById('projectDescription').value = '';
         document.getElementById('projectStatus').value = 'active';
+        document.getElementById('projectHiddenForUser').checked = false;
     }
 
     loadConfiguredProjects() {
