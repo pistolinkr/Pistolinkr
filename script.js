@@ -380,30 +380,53 @@ class GitHubDashboard {
         const projectInfoDescription = document.getElementById('projectInfoDescription');
         const githubLink = document.getElementById('githubLink');
         const liveSiteLink = document.getElementById('liveSiteLink');
+        const embedErrorMsgId = 'embedErrorMsg';
 
         title.textContent = repo.name;
-        
         // 프로젝트 설정 불러오기
         const projectSettings = this.loadProjectSettings(repo.name);
-        
+
+        // 임베드 실패 안내 메시지 제거
+        let embedErrorMsg = document.getElementById(embedErrorMsgId);
+        if (embedErrorMsg) embedErrorMsg.remove();
+
         if (projectSettings && projectSettings.url) {
-            // 설정된 URL이 있으면 임베드
             iframe.src = projectSettings.url;
             projectInfoTitle.textContent = repo.name;
             projectInfoDescription.textContent = projectSettings.description || repo.description || '설명이 없습니다.';
             liveSiteLink.href = projectSettings.url;
             liveSiteLink.style.display = 'inline-flex';
+
+            // 임베드 실패 감지 (timeout + onerror)
+            let embedTimeout = setTimeout(() => {
+                this.showEmbedError(liveSiteLink, iframe, embedErrorMsgId, projectSettings.url);
+            }, 3000);
+            iframe.onload = () => {
+                clearTimeout(embedTimeout);
+                // 일부 사이트는 onload가 떠도 X-Frame-Options로 차단될 수 있으니, 추가 안내 가능
+            };
+            iframe.onerror = () => {
+                clearTimeout(embedTimeout);
+                this.showEmbedError(liveSiteLink, iframe, embedErrorMsgId, projectSettings.url);
+            };
         } else {
-            // 설정된 URL이 없으면 기본 정보 표시
             iframe.src = 'about:blank';
             projectInfoTitle.textContent = '프로젝트 정보';
             projectInfoDescription.textContent = '이 프로젝트는 아직 도메인 URL이 설정되지 않았습니다. 관리자 계정으로 로그인하여 URL을 설정하세요.';
             liveSiteLink.style.display = 'none';
         }
-        
         githubLink.href = repo.html_url;
-
         this.openModal(modal);
+    }
+
+    showEmbedError(liveSiteLink, iframe, embedErrorMsgId, url) {
+        // 안내 메시지 및 새 창에서 열기 버튼 강조
+        let errorMsg = document.createElement('div');
+        errorMsg.id = embedErrorMsgId;
+        errorMsg.style = 'margin: 1rem 0; color: var(--danger-color); font-weight: bold; text-align: center;';
+        errorMsg.innerHTML = `이 사이트는 보안 정책(X-Frame-Options/CSP)으로 인해 임베드할 수 없습니다.<br>\n` +
+            `<a href="${url}" target="_blank" class="btn btn-primary" style="margin-top: 1rem; font-size: 1.1rem;">새 창에서 열기</a>`;
+        iframe.parentNode.insertAdjacentElement('afterend', errorMsg);
     }
 
     formatSize(size) {
@@ -513,11 +536,30 @@ class GitHubDashboard {
         document.body.style.overflow = 'auto';
     }
 
-    // 관리자 기능들
+    // 관리자 모드: 임베드 테스트 버튼 추가
     openAdminModal() {
         this.loadProjectSelect();
         this.loadConfiguredProjects();
         this.openModal(document.getElementById('adminModal'));
+        // 임베드 테스트 버튼 동적 추가
+        let testBtn = document.getElementById('embedTestBtn');
+        if (!testBtn) {
+            testBtn = document.createElement('button');
+            testBtn.id = 'embedTestBtn';
+            testBtn.className = 'btn btn-secondary';
+            testBtn.innerHTML = '<i class="fas fa-eye"></i> 임베드 테스트';
+            testBtn.style = 'margin-top:1rem;';
+            testBtn.onclick = () => {
+                const projectName = document.getElementById('projectSelect').value;
+                if (projectName) {
+                    const repo = this.repos.find(r => r.name === projectName);
+                    if (repo) this.showProjectDetails(repo);
+                } else {
+                    alert('테스트할 프로젝트를 선택하세요.');
+                }
+            };
+            document.querySelector('.project-url-settings').appendChild(testBtn);
+        }
     }
 
     loadProjectSelect() {
