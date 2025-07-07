@@ -365,6 +365,7 @@ body {
     top: 0;
     z-index: 100;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .header-content {
@@ -782,6 +783,22 @@ body {
 
 .modal-content.large {
     max-width: 800px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* 관리자 설정 모달 스크롤바 숨김 */
+#adminModal .modal-content.large {
+    overflow: hidden !important;
+}
+
+#configuredProjects {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+}
+#configuredProjects::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
 }
 
 .modal-header {

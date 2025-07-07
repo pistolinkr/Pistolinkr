@@ -730,7 +730,16 @@ class GitHubDashboard {
 
     editProjectSettings(projectName) {
         document.getElementById('projectSelect').value = projectName;
-        this.loadProjectSettings();
+        // 직접 값 세팅
+        const settings = this.loadProjectSettings(projectName);
+        if (settings) {
+            document.getElementById('projectUrl').value = settings.url || '';
+            document.getElementById('projectDescription').value = settings.description || '';
+            document.getElementById('projectStatus').value = settings.status || 'active';
+            document.getElementById('projectHiddenForUser').checked = !!settings.hiddenForUser;
+        } else {
+            this.clearProjectForm();
+        }
     }
 
     deleteProjectSettingsByName(projectName) {
