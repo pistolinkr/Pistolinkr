@@ -275,10 +275,17 @@ class GitHubDashboard {
     }
 
     updateStatistics() {
-        const totalRepos = this.repos.length;
-        const totalStars = this.repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
-        const totalForks = this.repos.reduce((sum, repo) => sum + repo.forks_count, 0);
-        const totalWatchers = this.repos.reduce((sum, repo) => sum + repo.watchers_count, 0);
+        // 일반 사용자에게 숨김 설정된 프로젝트 제외
+        const visibleRepos = this.repos.filter(repo => {
+            if (this.isAdmin) return true; // 관리자는 모든 프로젝트 볼 수 있음
+            const settings = this.loadProjectSettings(repo.name);
+            return !settings || !settings.hiddenForUser;
+        });
+
+        const totalRepos = visibleRepos.length;
+        const totalStars = visibleRepos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+        const totalForks = visibleRepos.reduce((sum, repo) => sum + repo.forks_count, 0);
+        const totalWatchers = visibleRepos.reduce((sum, repo) => sum + repo.watchers_count, 0);
 
         document.getElementById('totalRepos').textContent = totalRepos.toLocaleString();
         document.getElementById('totalStars').textContent = totalStars.toLocaleString();
@@ -288,7 +295,15 @@ class GitHubDashboard {
 
     updateLanguageFilter() {
         const languageFilter = document.getElementById('languageFilter');
-        const languages = [...new Set(this.repos.map(repo => repo.language).filter(Boolean))].sort();
+        
+        // 일반 사용자에게 숨김 설정된 프로젝트 제외
+        const visibleRepos = this.repos.filter(repo => {
+            if (this.isAdmin) return true; // 관리자는 모든 프로젝트 볼 수 있음
+            const settings = this.loadProjectSettings(repo.name);
+            return !settings || !settings.hiddenForUser;
+        });
+        
+        const languages = [...new Set(visibleRepos.map(repo => repo.language).filter(Boolean))].sort();
         
         // 기존 옵션 제거 (첫 번째 "모든 언어" 제외)
         while (languageFilter.children.length > 1) {
@@ -692,10 +707,20 @@ class GitHubDashboard {
             const projectItem = document.createElement('div');
             projectItem.className = 'configured-project-item';
             
+            const hiddenBadge = setting.hiddenForUser ? 
+                '<span class="hidden-badge" title="일반 사용자에게 숨김"><i class="fas fa-eye-slash"></i> 숨김</span>' : '';
+            const statusBadge = setting.status ? 
+                `<span class="status-badge status-${setting.status}" title="상태: ${setting.status}">${setting.status}</span>` : '';
+            
             projectItem.innerHTML = `
                 <div class="configured-project-info">
                     <h5>${projectName}</h5>
                     <p>${setting.url}</p>
+                    <div class="project-badges">
+                        ${hiddenBadge}
+                        ${statusBadge}
+                    </div>
+                    ${setting.description ? `<p class="project-description">${setting.description}</p>` : ''}
                 </div>
                 <div class="configured-project-actions">
                     <button onclick="dashboard.editProjectSettings('${projectName}')" title="편집">
