@@ -275,11 +275,10 @@ class GitHubDashboard {
     }
 
     updateStatistics() {
-        // 일반 사용자에게 숨김 설정된 프로젝트 제외
+        // 도메인 URL이 설정된(개시된) 프로젝트만 통계에 포함
         const visibleRepos = this.repos.filter(repo => {
-            if (this.isAdmin) return true; // 관리자는 모든 프로젝트 볼 수 있음
             const settings = this.loadProjectSettings(repo.name);
-            return !settings || !settings.hiddenForUser;
+            return settings && settings.url;
         });
 
         const totalRepos = visibleRepos.length;
@@ -295,21 +294,16 @@ class GitHubDashboard {
 
     updateLanguageFilter() {
         const languageFilter = document.getElementById('languageFilter');
-        
-        // 일반 사용자에게 숨김 설정된 프로젝트 제외
+        // 도메인 URL이 설정된(개시된) 프로젝트만 언어 필터에 포함
         const visibleRepos = this.repos.filter(repo => {
-            if (this.isAdmin) return true; // 관리자는 모든 프로젝트 볼 수 있음
             const settings = this.loadProjectSettings(repo.name);
-            return !settings || !settings.hiddenForUser;
+            return settings && settings.url;
         });
-        
         const languages = [...new Set(visibleRepos.map(repo => repo.language).filter(Boolean))].sort();
-        
         // 기존 옵션 제거 (첫 번째 "모든 언어" 제외)
         while (languageFilter.children.length > 1) {
             languageFilter.removeChild(languageFilter.lastChild);
         }
-
         // 새 언어 옵션 추가
         languages.forEach(language => {
             const option = document.createElement('option');
@@ -322,14 +316,13 @@ class GitHubDashboard {
     renderProjects() {
         const projectsGrid = document.getElementById('projectsGrid');
         projectsGrid.innerHTML = '';
-
-        // 숨김 필터 적용
+        // 도메인 URL이 설정된(개시된) 프로젝트만 노출 + 숨김 필터 적용
         const filtered = this.filteredRepos.filter(repo => {
             const settings = this.loadProjectSettings(repo.name);
-            if (!this.isAdmin && settings && settings.hiddenForUser) return false;
+            if (!settings || !settings.url) return false;
+            if (!this.isAdmin && settings.hiddenForUser) return false;
             return true;
         });
-
         if (filtered.length === 0) {
             projectsGrid.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
@@ -340,7 +333,6 @@ class GitHubDashboard {
             `;
             return;
         }
-
         filtered.forEach(repo => {
             const card = this.createProjectCard(repo);
             projectsGrid.appendChild(card);
