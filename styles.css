@@ -789,7 +789,7 @@ body {
 
 /* 관리자 설정 모달 스크롤바 숨김 */
 #adminModal .modal-content.large {
-    overflow: hidden !important;
+    /* overflow: hidden !important; */
 }
 
 #configuredProjects {
