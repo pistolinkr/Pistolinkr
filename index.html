@@ -26,13 +26,13 @@
                     <label for="loginPassword">비밀번호</label>
                     <div class="password-input">
                         <input type="password" id="loginPassword" placeholder="비밀번호를 입력하세요">
-                        <button type="button" id="togglePassword" class="password-toggle" title="비밀번호 보기" aria-label="비밀번호 보기/숨기기">
-                            <i class="fas fa-eye" aria-hidden="true"></i>
+                        <button type="button" id="togglePassword" class="password-toggle" title="비밀번호 보기">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
-                <button type="button" id="loginBtn" class="btn btn-primary login-btn" aria-label="로그인">
-                    <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                <button type="button" id="loginBtn" class="btn btn-primary login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
                     로그인
                 </button>
                 <div id="loginError" class="login-error" style="display: none;">
@@ -57,20 +57,20 @@
                         <h1>GitHub 프로젝트 대시보드</h1>
                     </div>
                     <div class="header-actions">
-                        <button id="refreshBtn" class="btn btn-secondary" aria-label="프로젝트 새로고침">
-                            <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                        <button id="refreshBtn" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i>
                             새로고침
                         </button>
-                        <button id="settingsBtn" class="btn btn-primary" aria-label="설정 열기">
-                            <i class="fas fa-cog" aria-hidden="true"></i>
+                        <button id="settingsBtn" class="btn btn-primary">
+                            <i class="fas fa-cog"></i>
                             설정
                         </button>
-                        <button id="adminBtn" class="btn btn-warning" style="display: none;" aria-label="관리자 패널 열기">
-                            <i class="fas fa-user-shield" aria-hidden="true"></i>
+                        <button id="adminBtn" class="btn btn-warning" style="display: none;">
+                            <i class="fas fa-user-shield"></i>
                             관리자
                         </button>
-                        <button id="logoutBtn" class="btn btn-danger" aria-label="로그아웃">
-                            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        <button id="logoutBtn" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i>
                             로그아웃
                         </button>
                     </div>
@@ -82,8 +82,8 @@
                 <!-- 검색 및 필터 -->
                 <div class="search-section">
                     <div class="search-box">
-                        <i class="fas fa-search" aria-hidden="true"></i>
-                        <input type="text" id="searchInput" placeholder="프로젝트 검색..." aria-label="프로젝트 검색">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="프로젝트 검색...">
                     </div>
                     <div class="filters">
                         <select id="languageFilter" class="filter-select" title="언어 필터">
@@ -142,12 +142,12 @@
                 <div class="projects-section">
                     <div class="section-header">
                         <h2>프로젝트 목록</h2>
-                        <div class="view-toggle" role="group" aria-label="뷰 모드 선택">
-                            <button class="view-btn active" data-view="grid" title="그리드 뷰" aria-label="그리드 뷰로 변경" aria-pressed="true">
-                                <i class="fas fa-th" aria-hidden="true"></i>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid" title="그리드 뷰">
+                                <i class="fas fa-th"></i>
                             </button>
-                            <button class="view-btn" data-view="list" title="리스트 뷰" aria-label="리스트 뷰로 변경" aria-pressed="false">
-                                <i class="fas fa-list" aria-hidden="true"></i>
+                            <button class="view-btn" data-view="list" title="리스트 뷰">
+                                <i class="fas fa-list"></i>
                             </button>
                         </div>
                     </div>
