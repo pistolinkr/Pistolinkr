@@ -361,7 +361,8 @@ class GitHubDashboard {
     async renderProjects() {
         const projectsGrid = document.getElementById('projectsGrid');
         projectsGrid.innerHTML = '';
-        // 도메인 URL이 설정된(개시된) 프로젝트만 노출 + 숨김 필터 적용
+        
+        // 임시: 모든 저장소를 표시하도록 수정 (디버깅용)
         const filtered = [];
         console.log('렌더링할 저장소 수:', this.filteredRepos.length);
         
@@ -369,8 +370,10 @@ class GitHubDashboard {
             const settings = await this.loadProjectSettings(repo.name);
             console.log(`저장소 "${repo.name}" 설정:`, settings);
             
+            // 임시: 설정이 없어도 표시 (디버깅용)
             if (!settings || !settings.url) {
-                console.log(`저장소 "${repo.name}" - URL 없음, 건너뜀`);
+                console.log(`저장소 "${repo.name}" - URL 없음, 하지만 임시로 표시`);
+                filtered.push(repo);
                 continue;
             }
             if (!this.isAdmin && settings.hiddenForUser) {
