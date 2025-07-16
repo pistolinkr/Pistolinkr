@@ -78,21 +78,23 @@ export default async function handler(req, res) {
         if (error) throw error;
         result = data;
       } else {
-        // 새 설정 추가
-        const { data, error } = await supabase
-          .from('project_settings')
-          .insert({
-            project_name,
-            url,
-            description,
-            status,
-            hidden_for_user
-          })
-          .select()
-          .single();
-        
-        if (error) throw error;
-        result = data;
+              // 새 설정 추가
+      const { data, error } = await supabase
+        .from('project_settings')
+        .insert({
+          project_name,
+          url,
+          description,
+          status,
+          hidden_for_user
+        })
+        .select();
+      
+      if (error) {
+        console.error('Insert error details:', error);
+        throw error;
+      }
+      result = data[0]; // 첫 번째 결과 사용
       }
       
       res.status(201).json({

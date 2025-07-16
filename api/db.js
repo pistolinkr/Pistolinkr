@@ -59,14 +59,16 @@ export default async function handler(req, res) {
           url,
           category
         })
-        .select()
-        .single();
+        .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Insert error details:', error);
+        throw error;
+      }
       
       res.status(201).json({
         success: true,
-        data: data
+        data: data[0] // 첫 번째 결과 사용
       });
     } catch (error) {
       console.error('Insert error:', error);
