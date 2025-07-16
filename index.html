@@ -302,6 +302,51 @@
                         <!-- 설정된 프로젝트들이 여기에 표시됩니다 -->
                     </div>
                 </div>
+
+                <div class="admin-section">
+                    <h4>일괄 관리</h4>
+                    <p>여러 프로젝트를 한 번에 관리할 수 있습니다.</p>
+                    
+                    <div class="bulk-actions">
+                        <button id="bulkHideProjects" class="btn btn-warning">
+                            <i class="fas fa-eye-slash"></i>
+                            프로젝트 일괄 숨기기
+                        </button>
+                        <button id="bulkShowProjects" class="btn btn-success">
+                            <i class="fas fa-eye"></i>
+                            프로젝트 일괄 보이기
+                        </button>
+                        <button id="refreshProjects" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i>
+                            프로젝트 목록 새로고침
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h4>관리자 도구</h4>
+                    <p>시스템 관리 및 모니터링 도구입니다.</p>
+                    
+                    <div class="admin-tools">
+                        <div class="tool-item">
+                            <h5>시스템 상태</h5>
+                            <div class="system-status">
+                                <div class="status-item">
+                                    <span class="status-label">데이터베이스:</span>
+                                    <span class="status-value" id="dbStatus">확인 중...</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">총 프로젝트:</span>
+                                    <span class="status-value" id="totalProjects">-</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">숨겨진 프로젝트:</span>
+                                    <span class="status-value" id="hiddenProjects">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

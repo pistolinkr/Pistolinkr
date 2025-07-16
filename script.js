@@ -124,6 +124,21 @@ class GitHubDashboard {
         document.getElementById('projectSelect').addEventListener('change', () => {
             this.loadProjectSettingsForForm();
         });
+
+        // 일괄 관리 버튼들
+        document.getElementById('bulkHideProjects').addEventListener('click', () => {
+            this.bulkHideProjects();
+        });
+
+        document.getElementById('bulkShowProjects').addEventListener('click', () => {
+            this.bulkShowProjects();
+        });
+
+        document.getElementById('refreshProjects').addEventListener('click', () => {
+            this.loadRepositories();
+            this.loadConfiguredProjects();
+            this.updateSystemStatus();
+        });
     }
 
     checkLoginStatus() {
@@ -408,6 +423,21 @@ class GitHubDashboard {
         const languages = repo.language ? [repo.language] : [];
         const updatedDate = new Date(repo.updated_at).toLocaleDateString('ko-KR');
 
+        // 관리자 전용 버튼들
+        const adminButtons = this.isAdmin ? `
+            <div class="project-admin-actions" onclick="event.stopPropagation();">
+                <button class="btn btn-sm btn-secondary admin-edit-btn" title="프로젝트 설정 편집" onclick="dashboard.editProjectSettings('${repo.name}')">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="btn btn-sm btn-warning admin-toggle-btn" title="사용자에게 숨기기/보이기" onclick="dashboard.toggleProjectVisibility('${repo.name}')">
+                    <i class="fas fa-eye-slash"></i>
+                </button>
+                <button class="btn btn-sm btn-danger admin-delete-btn" title="프로젝트 설정 삭제" onclick="dashboard.deleteProjectSettingsByName('${repo.name}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        ` : '';
+
         card.innerHTML = `
             <div class="project-header">
                 <div>
@@ -420,6 +450,7 @@ class GitHubDashboard {
                         ${repo.private ? 'Private' : 'Public'}
                     </span>
                 </div>
+                ${adminButtons}
             </div>
             <div class="project-description">
                 ${repo.description || '설명이 없습니다.'}
@@ -615,9 +646,10 @@ class GitHubDashboard {
     }
 
     // 관리자 모드: 임베드 테스트 버튼 추가
-    openAdminModal() {
-        this.loadProjectSelect();
-        this.loadConfiguredProjects();
+    async openAdminModal() {
+        await this.loadProjectSelect();
+        await this.loadConfiguredProjects();
+        await this.updateSystemStatus();
         this.openModal(document.getElementById('adminModal'));
         // 임베드 테스트 버튼 동적 추가
         let testBtn = document.getElementById('embedTestBtn');
@@ -637,6 +669,44 @@ class GitHubDashboard {
                 }
             };
             document.querySelector('.project-url-settings').appendChild(testBtn);
+        }
+    }
+
+    async updateSystemStatus() {
+        try {
+            // 데이터베이스 상태 확인
+            const dbStatusElement = document.getElementById('dbStatus');
+            try {
+                const response = await fetch('/api/project-settings');
+                if (response.ok) {
+                    dbStatusElement.textContent = '정상';
+                    dbStatusElement.className = 'status-value status-ok';
+                } else {
+                    dbStatusElement.textContent = '오류';
+                    dbStatusElement.className = 'status-value status-error';
+                }
+            } catch (error) {
+                dbStatusElement.textContent = '연결 실패';
+                dbStatusElement.className = 'status-value status-error';
+            }
+
+            // 프로젝트 통계 업데이트
+            const totalProjectsElement = document.getElementById('totalProjects');
+            const hiddenProjectsElement = document.getElementById('hiddenProjects');
+            
+            try {
+                const projectSettings = await window.projectSettingsAPI.getProjectSettings();
+                const totalProjects = projectSettings ? projectSettings.length : 0;
+                const hiddenProjects = projectSettings ? projectSettings.filter(p => p.hidden_for_user).length : 0;
+                
+                totalProjectsElement.textContent = totalProjects;
+                hiddenProjectsElement.textContent = hiddenProjects;
+            } catch (error) {
+                totalProjectsElement.textContent = '오류';
+                hiddenProjectsElement.textContent = '오류';
+            }
+        } catch (error) {
+            console.error('시스템 상태 업데이트 오류:', error);
         }
     }
 
@@ -841,17 +911,155 @@ class GitHubDashboard {
     }
 
     async deleteProjectSettingsByName(projectName) {
-        if (!confirm(`"${projectName}" 프로젝트의 설정을 삭제하시겠습니까?`)) {
+        if (!confirm(`프로젝트 "${projectName}"의 설정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
             return;
         }
 
         try {
             await window.projectSettingsAPI.deleteProjectSettings(projectName);
+            alert('프로젝트 설정이 삭제되었습니다.');
             await this.loadConfiguredProjects();
+            this.loadRepositories(); // 프로젝트 목록 새로고침
         } catch (error) {
             console.error('Failed to delete project settings:', error);
             alert('프로젝트 설정 삭제에 실패했습니다.');
         }
+    }
+
+    async toggleProjectVisibility(projectName) {
+        try {
+            // 현재 프로젝트 설정 불러오기
+            const currentSettings = await this.loadProjectSettings(projectName);
+            
+            if (!currentSettings) {
+                alert('이 프로젝트는 아직 설정이 없습니다. 먼저 프로젝트 설정을 추가해주세요.');
+                this.editProjectSettings(projectName);
+                return;
+            }
+
+            const newHiddenState = !currentSettings.hiddenForUser;
+            const action = newHiddenState ? '숨기기' : '보이기';
+            
+            if (!confirm(`프로젝트 "${projectName}"를 일반 사용자에게 ${action}하시겠습니까?`)) {
+                return;
+            }
+
+            // 설정 업데이트
+            const updatedSettings = {
+                ...currentSettings,
+                hiddenForUser: newHiddenState
+            };
+
+            await window.projectSettingsAPI.saveProjectSettings(projectName, updatedSettings);
+            alert(`프로젝트가 일반 사용자에게 ${action}되었습니다.`);
+            await this.loadConfiguredProjects();
+            this.loadRepositories(); // 프로젝트 목록 새로고침
+        } catch (error) {
+            console.error('프로젝트 가시성 토글 오류:', error);
+            alert('프로젝트 가시성 변경 중 오류가 발생했습니다.');
+        }
+    }
+
+    async editProjectSettings(projectName) {
+        try {
+            // 프로젝트 선택 드롭다운에서 해당 프로젝트 선택
+            const projectSelect = document.getElementById('projectSelect');
+            projectSelect.value = projectName;
+            
+            // 프로젝트 설정 폼에 데이터 로드
+            await this.loadProjectSettingsForForm();
+            
+            // 관리자 모달 열기
+            this.openAdminModal();
+            
+            // 프로젝트 URL 설정 섹션으로 스크롤
+            setTimeout(() => {
+                const adminModal = document.getElementById('adminModal');
+                const projectUrlSection = adminModal.querySelector('.admin-section');
+                if (projectUrlSection) {
+                    projectUrlSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+        } catch (error) {
+            console.error('프로젝트 설정 편집 오류:', error);
+            alert('프로젝트 설정 편집 중 오류가 발생했습니다.');
+        }
+    }
+
+    async bulkHideProjects() {
+        const projectNames = prompt('숨길 프로젝트 이름들을 쉼표로 구분하여 입력하세요:');
+        if (!projectNames) return;
+
+        const projects = projectNames.split(',').map(name => name.trim()).filter(name => name);
+        
+        if (!confirm(`${projects.length}개의 프로젝트를 일반 사용자에게 숨기시겠습니까?`)) {
+            return;
+        }
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const projectName of projects) {
+            try {
+                const currentSettings = await this.loadProjectSettings(projectName);
+                if (currentSettings) {
+                    const updatedSettings = {
+                        ...currentSettings,
+                        hiddenForUser: true
+                    };
+
+                    await window.projectSettingsAPI.saveProjectSettings(projectName, updatedSettings);
+                    successCount++;
+                } else {
+                    errorCount++;
+                }
+            } catch (error) {
+                errorCount++;
+                console.error(`프로젝트 ${projectName} 숨기기 오류:`, error);
+            }
+        }
+
+        alert(`작업 완료: ${successCount}개 성공, ${errorCount}개 실패`);
+        await this.loadConfiguredProjects();
+        this.loadRepositories();
+    }
+
+    async bulkShowProjects() {
+        const projectNames = prompt('보일 프로젝트 이름들을 쉼표로 구분하여 입력하세요:');
+        if (!projectNames) return;
+
+        const projects = projectNames.split(',').map(name => name.trim()).filter(name => name);
+        
+        if (!confirm(`${projects.length}개의 프로젝트를 일반 사용자에게 보이게 하시겠습니까?`)) {
+            return;
+        }
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const projectName of projects) {
+            try {
+                const currentSettings = await this.loadProjectSettings(projectName);
+                if (currentSettings) {
+                    const updatedSettings = {
+                        ...currentSettings,
+                        hiddenForUser: false
+                    };
+
+                    await window.projectSettingsAPI.saveProjectSettings(projectName, updatedSettings);
+                    successCount++;
+                } else {
+                    errorCount++;
+                }
+            } catch (error) {
+                errorCount++;
+                console.error(`프로젝트 ${projectName} 보이기 오류:`, error);
+            }
+        }
+
+        alert(`작업 완료: ${successCount}개 성공, ${errorCount}개 실패`);
+        await this.loadConfiguredProjects();
+        this.loadRepositories();
     }
 }
 
