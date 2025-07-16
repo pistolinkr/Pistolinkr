@@ -179,6 +179,19 @@
                     <label for="githubToken">GitHub 토큰 (선택사항)</label>
                     <input type="password" id="githubToken" placeholder="개인 액세스 토큰을 입력하세요">
                     <small>더 많은 요청을 위해 개인 액세스 토큰을 사용하세요</small>
+                    <div class="token-help">
+                        <button type="button" id="showTokenHelp" class="btn-link">토큰 생성 방법 보기</button>
+                        <div id="tokenHelpContent" style="display: none; margin-top: 10px; padding: 10px; background: #1a1a1a; border-radius: 6px; font-size: 12px;">
+                            <ol>
+                                <li>GitHub.com에 로그인</li>
+                                <li>Settings → Developer settings → Personal access tokens → Tokens (classic)</li>
+                                <li>"Generate new token" 클릭</li>
+                                <li>토큰 이름 입력 (예: "Dashboard Access")</li>
+                                <li>권한 설정: <code>public_repo</code> 체크</li>
+                                <li>토큰 생성 후 복사하여 여기에 붙여넣기</li>
+                            </ol>
+                        </div>
+                    </div>
                 </div>
                 <div class="setting-group">
                     <label>

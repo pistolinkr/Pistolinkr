@@ -82,6 +82,20 @@ class GitHubDashboard {
             this.closeSettingsModal();
         });
 
+        // 토큰 도움말 토글
+        document.getElementById('showTokenHelp').addEventListener('click', () => {
+            const helpContent = document.getElementById('tokenHelpContent');
+            const button = document.getElementById('showTokenHelp');
+            
+            if (helpContent.style.display === 'none') {
+                helpContent.style.display = 'block';
+                button.textContent = '토큰 생성 방법 숨기기';
+            } else {
+                helpContent.style.display = 'none';
+                button.textContent = '토큰 생성 방법 보기';
+            }
+        });
+
         // 모달 닫기 이벤트
         document.querySelectorAll('.close-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -213,32 +227,57 @@ class GitHubDashboard {
         // 항상 pistolinkr 계정 사용
         const username = 'pistolinkr';
         this.settings.githubUsername = username;
-        // 이하 기존 코드 유지
+        
         if (!username) {
             this.showSettingsModal();
             return;
         }
+        
         this.showLoading(true);
+        
         try {
-            const headers = {};
+            const headers = {
+                'Accept': 'application/vnd.github.v3+json',
+                'User-Agent': 'pistolinkr-dashboard'
+            };
+            
             if (this.settings.githubToken) {
                 headers['Authorization'] = `token ${this.settings.githubToken}`;
             }
+            
+            console.log('GitHub API 호출 중:', `https://api.github.com/users/${username}/repos`);
+            
             const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, {
                 headers: headers
             });
+            
+            console.log('GitHub API 응답 상태:', response.status);
+            
             if (!response.ok) {
-                throw new Error(`GitHub API 오류: ${response.status}`);
+                const errorText = await response.text();
+                console.error('GitHub API 오류 응답:', errorText);
+                
+                if (response.status === 403) {
+                    throw new Error('API 요청 제한에 도달했습니다. GitHub 토큰을 설정해주세요.');
+                } else if (response.status === 404) {
+                    throw new Error('사용자를 찾을 수 없습니다.');
+                } else {
+                    throw new Error(`GitHub API 오류: ${response.status} - ${errorText}`);
+                }
             }
+            
             this.repos = await response.json();
+            console.log('로드된 저장소 수:', this.repos.length);
+            
             this.filteredRepos = [...this.repos];
             this.updateStatistics();
             this.updateLanguageFilter();
             this.renderProjects();
             this.showLoading(false);
+            
         } catch (error) {
             console.error('프로젝트 로드 오류:', error);
-            this.showError('프로젝트를 불러오는 중 오류가 발생했습니다. 설정을 확인해주세요.');
+            this.showError(`프로젝트를 불러오는 중 오류가 발생했습니다: ${error.message}`);
             this.showLoading(false);
         }
     }
