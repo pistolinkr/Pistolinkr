@@ -122,7 +122,7 @@ class GitHubDashboard {
         });
 
         document.getElementById('projectSelect').addEventListener('change', () => {
-            this.loadProjectSettings();
+            this.loadProjectSettingsForForm();
         });
     }
 
@@ -697,7 +697,7 @@ class GitHubDashboard {
         this.clearProjectForm();
     }
 
-    loadProjectSettings() {
+    loadProjectSettingsForForm() {
         const projectName = document.getElementById('projectSelect').value;
         if (!projectName) {
             this.clearProjectForm();
