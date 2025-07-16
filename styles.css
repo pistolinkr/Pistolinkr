@@ -628,19 +628,21 @@ body.login-active {
 
 .filters {
     display: flex;
-    gap: 1rem;
+    gap: 0.8rem;
+    align-items: center;
 }
 
 .filter-select {
-    padding: 0.6rem 1rem;
+    padding: 0.5rem 0.8rem;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-small);
     background: var(--background-secondary);
     color: var(--text-primary);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
+    min-width: 120px;
 }
 
 .filter-select:focus {
@@ -714,6 +716,7 @@ body.login-active {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.2rem;
+    gap: 1rem;
 }
 
 .section-header h2 {
@@ -1320,6 +1323,19 @@ body.login-active {
         align-self: flex-start;
     }
     
+    .filters {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 0.6rem;
+    }
+    
+    .filter-select {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.85rem;
+        padding: 0.6rem 0.8rem;
+    }
+    
     .view-btn {
         padding: 0.6rem 1rem;
         font-size: 0.9rem;
@@ -1595,6 +1611,19 @@ body.login-active {
     
     .view-toggle {
         gap: 0.5rem;
+    }
+    
+    .filters {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .filter-select {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.6rem;
     }
     
     .view-btn {

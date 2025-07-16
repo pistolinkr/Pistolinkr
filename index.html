@@ -82,22 +82,11 @@
 
             <!-- 메인 콘텐츠 -->
             <main class="main-content">
-                <!-- 검색 및 필터 -->
+                <!-- 검색 -->
                 <div class="search-section">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
                         <input type="text" id="searchInput" placeholder="프로젝트 검색...">
-                    </div>
-                    <div class="filters">
-                        <select id="languageFilter" class="filter-select" title="언어 필터">
-                            <option value="">모든 언어</option>
-                        </select>
-                        <select id="sortFilter" class="filter-select" title="정렬 기준">
-                            <option value="updated">최근 업데이트</option>
-                            <option value="created">생성일</option>
-                            <option value="name">이름순</option>
-                            <option value="stars">스타순</option>
-                        </select>
                     </div>
                 </div>
 
@@ -152,6 +141,17 @@
                             <button class="view-btn" data-view="list" title="리스트 뷰">
                                 <i class="fas fa-list"></i>
                             </button>
+                        </div>
+                        <div class="filters">
+                            <select id="languageFilter" class="filter-select" title="언어 필터">
+                                <option value="">모든 언어</option>
+                            </select>
+                            <select id="sortFilter" class="filter-select" title="정렬 기준">
+                                <option value="updated">최근 업데이트</option>
+                                <option value="created">생성일</option>
+                                <option value="name">이름순</option>
+                                <option value="stars">스타순</option>
+                            </select>
                         </div>
                     </div>
                     <div id="projectsGrid" class="projects-grid">
