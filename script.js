@@ -39,8 +39,18 @@ class GitHubDashboard {
             this.handleLogout();
         });
 
+        // 모바일 로그아웃 버튼
+        document.getElementById('mobileLogoutBtn').addEventListener('click', () => {
+            this.handleLogout();
+        });
+
         // 관리자 이벤트
         document.getElementById('adminBtn').addEventListener('click', () => {
+            this.openAdminModal();
+        });
+
+        // 모바일 관리자 버튼
+        document.getElementById('mobileAdminBtn').addEventListener('click', () => {
             this.openAdminModal();
         });
 
@@ -69,8 +79,18 @@ class GitHubDashboard {
             this.loadRepositories();
         });
 
+        // 모바일 새로고침 버튼
+        document.getElementById('mobileRefreshBtn').addEventListener('click', () => {
+            this.loadRepositories();
+        });
+
         // 설정 모달 이벤트
         document.getElementById('settingsBtn').addEventListener('click', () => {
+            this.openSettingsModal();
+        });
+
+        // 모바일 설정 버튼
+        document.getElementById('mobileSettingsBtn').addEventListener('click', () => {
             this.openSettingsModal();
         });
 
@@ -223,10 +243,13 @@ class GitHubDashboard {
         
         // 관리자 버튼 표시/숨김
         const adminBtn = document.getElementById('adminBtn');
+        const mobileAdminBtn = document.getElementById('mobileAdminBtn');
         if (this.isAdmin) {
             adminBtn.style.display = 'inline-flex';
+            mobileAdminBtn.style.display = 'flex';
         } else {
             adminBtn.style.display = 'none';
+            mobileAdminBtn.style.display = 'none';
         }
         
         this.loadRepositories();
