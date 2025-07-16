@@ -10,12 +10,124 @@ class GitHubDashboard {
         this.isLoggedIn = false;
         this.isAdmin = false;
         
+        // UX 개선을 위한 상태 관리
+        this.isLoading = false;
+        this.toastQueue = [];
+        this.isShowingToast = false;
+        
         this.init();
     }
 
     init() {
+        this.createToastContainer();
         this.bindEvents();
         this.checkLoginStatus();
+    }
+
+    // 토스트 알림 시스템 추가
+    createToastContainer() {
+        const toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+
+    showToast(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="toast-icon ${this.getToastIcon(type)}"></i>
+                <span class="toast-message">${message}</span>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        document.getElementById('toast-container').appendChild(toast);
+        
+        // 애니메이션 효과
+        setTimeout(() => toast.classList.add('show'), 100);
+        
+        // 자동 제거
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
+    getToastIcon(type) {
+        const icons = {
+            success: 'fas fa-check-circle',
+            error: 'fas fa-exclamation-circle',
+            warning: 'fas fa-exclamation-triangle',
+            info: 'fas fa-info-circle'
+        };
+        return icons[type] || icons.info;
+    }
+
+    // 로딩 상태 관리 개선
+    showLoading(show, message = '로딩 중...') {
+        this.isLoading = show;
+        const spinner = document.getElementById('loadingSpinner');
+        const spinnerText = spinner?.querySelector('p');
+        
+        if (spinner) {
+            spinner.style.display = show ? 'flex' : 'none';
+            if (spinnerText) {
+                spinnerText.textContent = message;
+            }
+        }
+        
+        // 전체 페이지 로딩 오버레이
+        if (show) {
+            this.showPageLoader(message);
+        } else {
+            this.hidePageLoader();
+        }
+    }
+
+    showPageLoader(message = '로딩 중...') {
+        let loader = document.getElementById('page-loader');
+        if (!loader) {
+            loader = document.createElement('div');
+            loader.id = 'page-loader';
+            loader.className = 'page-loader';
+            loader.innerHTML = `
+                <div class="page-loader-content">
+                    <div class="page-spinner"></div>
+                    <p>${message}</p>
+                </div>
+            `;
+            document.body.appendChild(loader);
+        }
+        loader.style.display = 'flex';
+    }
+
+    hidePageLoader() {
+        const loader = document.getElementById('page-loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    }
+
+    // 에러 처리 개선
+    showError(message, title = '오류') {
+        console.error(`[${title}] ${message}`);
+        this.showToast(message, 'error', 5000);
+    }
+
+    showSuccess(message) {
+        this.showToast(message, 'success');
+    }
+
+    showWarning(message) {
+        this.showToast(message, 'warning');
+    }
+
+    showInfo(message) {
+        this.showToast(message, 'info');
     }
 
     bindEvents() {
@@ -154,25 +266,33 @@ class GitHubDashboard {
         }
     }
 
-    handleLogin() {
+    async handleLogin() {
         const name = document.getElementById('loginName').value.trim();
         const password = document.getElementById('loginPassword').value;
         const loginError = document.getElementById('loginError');
+        const loginBtn = document.getElementById('loginBtn');
         const allowedNames = ['성동영', '박상현'];
+        
+        // 로딩 상태 표시
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로그인 중...';
+        
+        // 약간의 지연으로 UX 개선
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         if (!allowedNames.includes(name)) {
             loginError.style.display = 'flex';
             loginError.querySelector('span').textContent = '허용된 이름이 아닙니다.';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginPassword').blur();
             document.getElementById('loginName').focus();
-            return;
-        }
-        // 기존 비밀번호 검증 로직
-        if (password === this.adminPassword) {
+            this.showError('허용된 이름이 아닙니다.');
+        } else if (password === this.adminPassword) {
             sessionStorage.setItem('githubDashboardLoggedIn', 'true');
             sessionStorage.setItem('githubDashboardAdmin', 'true');
             this.isLoggedIn = true;
             this.isAdmin = true;
+            this.showSuccess('관리자로 로그인되었습니다.');
             this.showDashboard();
             document.getElementById('loginPassword').value = '';
             loginError.style.display = 'none';
@@ -181,6 +301,7 @@ class GitHubDashboard {
             sessionStorage.setItem('githubDashboardAdmin', 'false');
             this.isLoggedIn = true;
             this.isAdmin = false;
+            this.showSuccess('로그인되었습니다.');
             this.showDashboard();
             document.getElementById('loginPassword').value = '';
             loginError.style.display = 'none';
@@ -189,7 +310,12 @@ class GitHubDashboard {
             loginError.querySelector('span').textContent = '잘못된 이름 또는 비밀번호입니다.';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginPassword').focus();
+            this.showError('잘못된 이름 또는 비밀번호입니다.');
         }
+        
+        // 버튼 상태 복원
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 로그인';
     }
 
     handleLogout() {
@@ -248,7 +374,7 @@ class GitHubDashboard {
             return;
         }
         
-        this.showLoading(true);
+        this.showLoading(true, '프로젝트를 불러오는 중...');
         
         try {
             const headers = {
@@ -288,11 +414,13 @@ class GitHubDashboard {
             await this.updateStatistics();
             await this.updateLanguageFilter();
             await this.renderProjects();
-            this.showLoading(false);
+            
+            this.showSuccess(`${this.repos.length}개의 프로젝트를 불러왔습니다.`);
             
         } catch (error) {
             console.error('프로젝트 로드 오류:', error);
-            this.showError(`프로젝트를 불러오는 중 오류가 발생했습니다: ${error.message}`);
+            this.showError(error.message);
+        } finally {
             this.showLoading(false);
         }
     }
@@ -609,30 +737,6 @@ class GitHubDashboard {
                 this.loadRepositories();
             }, 5 * 60 * 1000); // 5분
         }
-    }
-
-    showLoading(show) {
-        const spinner = document.getElementById('loadingSpinner');
-        const projectsGrid = document.getElementById('projectsGrid');
-        
-        if (show) {
-            spinner.style.display = 'flex';
-            projectsGrid.style.display = 'none';
-        } else {
-            spinner.style.display = 'none';
-            projectsGrid.style.display = 'grid';
-        }
-    }
-
-    showError(message) {
-        const projectsGrid = document.getElementById('projectsGrid');
-        projectsGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--danger-color);">
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
-                <h3>오류가 발생했습니다</h3>
-                <p>${message}</p>
-            </div>
-        `;
     }
 
     openModal(modal) {
