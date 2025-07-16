@@ -1,20 +1,20 @@
 /* 기본 다크 테마 변수 */
 :root {
-    --primary-color: rgba(10, 10, 10, 0.8);
-    --primary-hover: rgba(26, 26, 26, 0.9);
-    --secondary-color: rgba(26, 26, 26, 0.7);
+    --primary-color: #0a0a0a;
+    --primary-hover: #1a1a1a;
+    --secondary-color: #1a1a1a;
     --accent-color: #3b82f6;
     --accent-hover: #2563eb;
-    --text-primary: rgba(255, 255, 255, 0.9);
-    --text-secondary: rgba(161, 161, 170, 0.8);
-    --text-muted: rgba(113, 113, 122, 0.7);
-    --border-color: rgba(39, 39, 42, 0.6);
+    --text-primary: #ffffff;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --border-color: #27272a;
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
-    --background-primary: rgba(0, 0, 0, 0.95);
-    --background-secondary: rgba(10, 10, 10, 0.8);
-    --background-tertiary: rgba(26, 26, 26, 0.6);
+    --background-primary: #000000;
+    --background-secondary: #0a0a0a;
+    --background-tertiary: #1a1a1a;
     --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.3);
     --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.4);
     --shadow-heavy: 0 10px 15px rgba(0, 0, 0, 0.5);
@@ -24,7 +24,6 @@
     --transition: all 0.2s ease;
     --safe-area-inset-top: env(safe-area-inset-top);
     --safe-area-inset-bottom: env(safe-area-inset-bottom);
-    --backdrop-blur: blur(20px);
 }
 
 /* 라이트 테마 오버라이드 */
@@ -73,13 +72,11 @@
 
 .login-container {
     background: var(--background-secondary);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: 1.5rem;
+    padding: 2rem;
     width: 100%;
-    max-width: 350px;
+    max-width: 400px;
     box-shadow: var(--shadow-heavy);
     text-align: center;
     display: flex;
@@ -90,27 +87,27 @@
 }
 
 .login-header {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .login-header i {
-    font-size: 2.8rem;
+    font-size: 3rem;
     color: var(--accent-color);
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
     display: block;
 }
 
 .login-header h1 {
-    font-size: 2rem;
+    font-size: 2.25rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.75rem;
     letter-spacing: -0.025em;
 }
 
 .login-header p {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.5;
 }
 
@@ -119,16 +116,16 @@
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     text-align: left;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     font-weight: 600;
     color: var(--text-primary);
-    font-size: 0.9rem;
+    font-size: 1rem;
     letter-spacing: -0.01em;
 }
 
@@ -140,14 +137,12 @@
 
 .password-input input {
     width: 100%;
-    padding: 0.8rem 1rem 0.8rem 1rem;
+    padding: 1rem 1rem 1rem 1rem;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius-small);
     background: var(--background-tertiary);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
     color: var(--text-primary);
-    font-size: 0.9rem;
+    font-size: 1rem;
     padding-right: 3rem;
     transition: var(--transition);
 }
@@ -178,16 +173,14 @@
 
 .login-btn {
     width: 100%;
-    padding: 1rem;
-    font-size: 1rem;
+    padding: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     border-radius: var(--border-radius-small);
-    margin-top: 0.8rem;
+    margin-top: 1rem;
     transition: var(--transition);
     position: relative;
     overflow: hidden;
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
 }
 
 .login-btn:hover {
@@ -222,14 +215,13 @@
 .mobile-footer {
     display: none;
     background: var(--background-secondary);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
     border-top: 1px solid var(--border-color);
-    padding: 0.6rem 0;
+    padding: 0.75rem 0;
     position: sticky;
     bottom: 0;
     z-index: 100;
-    overscroll-behavior: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .footer-actions {
@@ -244,16 +236,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.2rem;
-    padding: 0.4rem;
+    gap: 0.25rem;
+    padding: 0.5rem;
     background: none;
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
     transition: var(--transition);
     border-radius: 8px;
-    min-width: 50px;
-    font-size: 0.7rem;
+    min-width: 60px;
+    font-size: 0.75rem;
     font-weight: 500;
 }
 
@@ -263,12 +255,12 @@
 }
 
 .footer-btn i {
-    font-size: 1rem;
-    margin-bottom: 0.15rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
 }
 
 .footer-btn span {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     line-height: 1;
 }
 
@@ -463,8 +455,6 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
 }
 
 body.login-active {
@@ -479,19 +469,18 @@ body.login-active {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overscroll-behavior: none;
 }
 
 /* 헤더 */
 .header {
     background: var(--background-secondary);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
     border-bottom: 1px solid var(--border-color);
-    padding: 0.8rem 0;
+    padding: 1rem 0;
     position: sticky;
     top: 0;
     z-index: 100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .header-content {
@@ -510,12 +499,12 @@ body.login-active {
 }
 
 .logo i {
-    font-size: 1.8rem;
+    font-size: 2rem;
     color: var(--accent-color);
 }
 
 .logo h1 {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -527,7 +516,7 @@ body.login-active {
 
 /* 버튼 스타일 */
 .btn {
-    padding: 0.7rem 1.4rem;
+    padding: 0.875rem 1.75rem;
     border: none;
     border-radius: var(--border-radius);
     font-weight: 600;
@@ -535,12 +524,10 @@ body.login-active {
     transition: var(--transition);
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.8rem;
+    gap: 0.5rem;
+    font-size: 0.875rem;
     text-decoration: none;
     letter-spacing: 0.025em;
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
 }
 
 .btn-primary {
@@ -595,7 +582,6 @@ body.login-active {
     margin: 0 auto;
     padding: 2rem;
     width: 100%;
-    overscroll-behavior: none;
 }
 
 /* 검색 섹션 */
@@ -666,14 +652,12 @@ body.login-active {
 
 .stat-card {
     background: var(--background-secondary);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-small);
-    padding: 1.2rem;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 1rem;
     transition: var(--transition);
 }
 
@@ -684,27 +668,27 @@ body.login-active {
 }
 
 .stat-icon {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     background: var(--accent-color);
     border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: white;
 }
 
 .stat-content h3 {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.25rem;
 }
 
 .stat-content p {
     color: var(--text-secondary);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 /* 프로젝트 섹션 */
@@ -764,11 +748,9 @@ body.login-active {
 /* 프로젝트 카드 */
 .project-card {
     background: var(--background-tertiary);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-small);
-    padding: 1.2rem;
+    padding: 1.5rem;
     transition: var(--transition);
     cursor: pointer;
 }
@@ -1239,29 +1221,6 @@ body.login-active {
         display: none;
     }
     
-    /* 모바일 오버스크롤 방지 */
-    body {
-        overscroll-behavior: none;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .container, .dashboard-content, .main-content {
-        overscroll-behavior: none;
-    }
-    
-    /* iOS Safari 오버스크롤 방지 */
-    html, body {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-    }
-    
-    .dashboard-content {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
     .main-content {
         padding: 1rem;
     }
@@ -1361,8 +1320,6 @@ body.login-active {
         font-size: 16px;
         -webkit-text-size-adjust: 100%;
         -webkit-tap-highlight-color: transparent;
-        overscroll-behavior: none;
-        -webkit-overflow-scrolling: touch;
     }
     
     /* 로그인 화면 모바일 최적화 */
@@ -1763,7 +1720,6 @@ body.login-active {
     justify-content: center;
     align-items: stretch;
     overflow: hidden !important;
-    overscroll-behavior: none;
   }
   .login-header {
     margin-bottom: 1rem;
