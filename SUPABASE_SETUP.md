@@ -1,16 +1,37 @@
 # Supabase 설정 가이드
 
-## 1. Vercel 환경 변수 설정
+## 1. 환경 변수 설정
 
+### 방법 1: .env.local 파일 사용 (로컬 개발용)
+프로젝트 루트에 `.env.local` 파일을 생성하고 다음 내용을 추가하세요:
+
+```
+# Supabase 설정
+NEXT_PUBLIC_SUPABASE_URL=https://kwdxnvxjpacrjmamuern.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3ZHhudnhqcGFjcmptYW11ZXJuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjY0MDI0NCwiZXhwIjoyMDY4MjE2MjQ0fQ.0r-DxVSPQMQKthai6LGUDABDhQgQWSS86JcVwJJOvYc
+SUPABASE_URL=https://kwdxnvxjpacrjmamuern.supabase.co
+
+# Edge Config 설정 (선택사항)
+EDGE_CONFIG_ID=your-edge-config-id
+
+# 기존 Vercel Postgres 설정 (선택사항)
+POSTGRES_URL=postgres://postgres.kwdxnvxjpacrjmamuern:gkhZQnEKTNKvUy0y@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
+POSTGRES_USER=postgres
+POSTGRES_HOST=db.kwdxnvxjpacrjmamuern.supabase.co
+POSTGRES_PASSWORD=gkhZQnEKTNKvUy0y
+POSTGRES_DATABASE=postgres
+```
+
+### 방법 2: Vercel 환경 변수 설정 (배포용)
 Vercel 대시보드에서 다음 환경 변수들을 추가하세요:
 
-### 필수 환경 변수:
+**필수 환경 변수:**
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://kwdxnvxjpacrjmamuern.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3ZHhudnhqcGFjcmptYW11ZXJuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjY0MDI0NCwiZXhwIjoyMDY4MjE2MjQ0fQ.0r-DxVSPQMQKthai6LGUDABDhQgQWSS86JcVwJJOvYc
 ```
 
-### 선택적 환경 변수 (기존 Vercel Postgres 관련):
+**선택적 환경 변수:**
 ```
 POSTGRES_URL=postgres://postgres.kwdxnvxjpacrjmamuern:gkhZQnEKTNKvUy0y@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
 POSTGRES_USER=postgres

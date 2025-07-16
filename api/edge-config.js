@@ -1,5 +1,13 @@
 import { get } from '@vercel/edge-config';
 
+// Edge Config ID 확인
+const edgeConfigId = process.env.EDGE_CONFIG_ID;
+
+// 환경 변수 확인
+if (!edgeConfigId) {
+  console.error('Missing Edge Config ID environment variable');
+}
+
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
@@ -14,7 +22,8 @@ export default async function handler(req, res) {
       console.error('Edge Config fetch error:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch project settings from Edge Config'
+        error: 'Failed to fetch project settings from Edge Config',
+        details: error.message
       });
     }
   } else if (req.method === 'POST') {
@@ -55,7 +64,8 @@ export default async function handler(req, res) {
       console.error('Edge Config update error:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to update project settings in Edge Config'
+        error: 'Failed to update project settings in Edge Config',
+        details: error.message
       });
     }
   } else if (req.method === 'DELETE') {
@@ -74,7 +84,8 @@ export default async function handler(req, res) {
       console.error('Edge Config delete error:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to delete project settings from Edge Config'
+        error: 'Failed to delete project settings from Edge Config',
+        details: error.message
       });
     }
   } else {

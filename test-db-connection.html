@@ -132,6 +132,7 @@
         
         <div class="test-section">
             <h3>📊 데이터베이스 연결 테스트</h3>
+            <button onclick="testEnvironmentVariables()">환경 변수 확인</button>
             <button onclick="testDatabaseConnection()">Supabase 연결 테스트</button>
             <button onclick="testEdgeConfig()">Edge Config 연결 테스트</button>
             <button onclick="testProjectSettings()">프로젝트 설정 로드 테스트</button>
@@ -165,6 +166,7 @@
     </div>
 
     <script src="js/database.js"></script>
+    <script src="js/config.js"></script>
     <script>
         function showResult(elementId, message, type = 'info') {
             const element = document.getElementById(elementId);
@@ -253,6 +255,30 @@
                 }
             } catch (error) {
                 showResult('connectionResult', `❌ 프로젝트 저장 오류:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function testEnvironmentVariables() {
+            showResult('connectionResult', '환경 변수를 확인하는 중...', 'info');
+            
+            try {
+                // 설정 정보 가져오기
+                const configInfo = window.appConfig ? window.appConfig.getConfigInfo() : 'Config not available';
+                const validation = window.appConfig ? window.appConfig.validateConfig() : { isValid: false, errors: ['Config not available'] };
+                
+                const result = {
+                    configInfo: configInfo,
+                    validation: validation,
+                    message: validation.isValid ? '환경 변수가 올바르게 설정되었습니다.' : '환경 변수 설정에 문제가 있습니다.'
+                };
+                
+                if (validation.isValid) {
+                    showResult('connectionResult', `✅ 환경 변수 확인 완료!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResult('connectionResult', `❌ 환경 변수 문제 발견:\n\n${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ 환경 변수 확인 오류:\n\n${error.message}`, 'error');
             }
         }
 

@@ -1,8 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
+import config from '../js/config.js';
 
-// Supabase 클라이언트 생성
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Supabase 클라이언트 생성 - 설정 유틸리티 사용
+const supabaseUrl = config.getSupabaseUrl();
+const supabaseServiceKey = config.getSupabaseServiceKey();
+
+// 환경 변수 확인
+const validation = config.validateConfig();
+if (!validation.isValid) {
+  console.error('Configuration validation failed:', validation.errors);
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 

@@ -1,17 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
+import config from '../js/config.js';
 
-// Supabase 클라이언트 생성
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Supabase 클라이언트 생성 - 설정 유틸리티 사용
+const supabaseUrl = config.getSupabaseUrl();
+const supabaseServiceKey = config.getSupabaseServiceKey();
+
+// 환경 변수 확인
+const validation = config.validateConfig();
+if (!validation.isValid) {
+  console.error('Configuration validation failed:', validation.errors);
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      // 프로젝트 설정 테이블 생성 (Supabase에서는 수동으로 생성해야 함)
-      // 테이블이 없다면 에러가 발생할 수 있으므로 try-catch로 처리
-      
       // 모든 프로젝트 설정 조회
       const { data, error } = await supabase
         .from('project_settings')
