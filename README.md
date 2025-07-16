@@ -23,6 +23,11 @@
 - 개인 액세스 토큰 설정 (선택사항)
 - 자동 새로고침 설정
 
+### 🗄️ 데이터베이스 연동
+- Vercel Postgres 데이터베이스 연동
+- Vercel Blob 파일 저장소 연동
+- 실시간 데이터 동기화
+
 ## 🛠️ 설치 및 사용법
 
 ### 1. 파일 다운로드
@@ -50,6 +55,19 @@ http://localhost:8000
 2. GitHub 사용자명 입력
 3. (선택사항) GitHub 개인 액세스 토큰 입력
 4. 설정 저장
+
+### 5. 데이터베이스 설정 (Vercel 배포 시)
+1. Vercel 대시보드에서 Postgres 데이터베이스 생성
+2. 환경 변수 설정:
+   ```
+   POSTGRES_URL="your_postgres_connection_string"
+   POSTGRES_HOST="your_postgres_host"
+   POSTGRES_DATABASE="your_database_name"
+   POSTGRES_USERNAME="your_username"
+   POSTGRES_PASSWORD="your_password"
+   BLOB_READ_WRITE_TOKEN="your_blob_token"
+   ```
+3. 프로젝트 재배포
 
 ## 🔐 GitHub 개인 액세스 토큰 설정
 
