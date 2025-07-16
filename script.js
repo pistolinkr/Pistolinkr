@@ -219,6 +219,7 @@ class GitHubDashboard {
     showDashboard() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardContent').style.display = 'block';
+        document.body.classList.remove('login-active');
         
         // 관리자 버튼 표시/숨김
         const adminBtn = document.getElementById('adminBtn');
@@ -235,6 +236,7 @@ class GitHubDashboard {
     showLoginScreen() {
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('dashboardContent').style.display = 'none';
+        document.body.classList.add('login-active');
         document.getElementById('loginPassword').focus();
     }
 
