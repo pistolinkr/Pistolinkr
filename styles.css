@@ -719,6 +719,17 @@ body.login-active {
     gap: 1rem;
 }
 
+.section-header .view-toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.section-header .filters {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
 .section-header h2 {
     font-size: 1.3rem;
     font-weight: 600;
@@ -1314,19 +1325,23 @@ body.login-active {
     }
     
     .section-header {
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
-        align-items: flex-start;
+        align-items: center;
+        flex-wrap: wrap;
     }
     
     .view-toggle {
-        align-self: flex-start;
+        display: flex;
+        gap: 0.5rem;
     }
     
     .filters {
-        width: 100%;
-        justify-content: flex-start;
+        display: flex;
         gap: 0.6rem;
+        align-items: center;
+        flex: 1;
+        min-width: 0;
     }
     
     .filter-select {
@@ -1602,6 +1617,10 @@ body.login-active {
     
     .section-header {
         margin-bottom: 1.5rem;
+        flex-direction: row;
+        gap: 0.8rem;
+        align-items: center;
+        flex-wrap: wrap;
     }
     
     .section-header h2 {
@@ -1610,13 +1629,16 @@ body.login-active {
     }
     
     .view-toggle {
+        display: flex;
         gap: 0.5rem;
     }
     
     .filters {
-        width: 100%;
-        justify-content: flex-start;
+        display: flex;
         gap: 0.5rem;
+        align-items: center;
+        flex: 1;
+        min-width: 0;
     }
     
     .filter-select {
