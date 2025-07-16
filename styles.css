@@ -760,7 +760,7 @@ body.login-active {
     background: var(--background-tertiary);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-small);
-    padding: 1.2rem;
+    padding: 0.8rem;
     transition: var(--transition);
     cursor: pointer;
     backdrop-filter: var(--backdrop-blur);
@@ -777,14 +777,14 @@ body.login-active {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
+    margin-bottom: 0.6rem;
 }
 
 .project-title {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
 }
 
 .project-title a {
@@ -815,9 +815,9 @@ body.login-active {
 
 .project-description {
     color: var(--text-secondary);
-    font-size: 0.85rem;
-    line-height: 1.5;
-    margin-bottom: 0.8rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin-bottom: 0.6rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -949,21 +949,21 @@ body.login-active {
 
 .project-meta {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
     flex-wrap: wrap;
 }
 
 .project-meta-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
 }
 
 .project-meta-item i {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
 }
 
 .project-languages {
@@ -973,11 +973,11 @@ body.login-active {
 }
 
 .language-tag {
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.4rem;
     background: var(--background-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     color: var(--text-secondary);
 }
 
@@ -1297,17 +1297,17 @@ body.login-active {
     }
     
     .project-card {
-        padding: 1.2rem;
+        padding: 0.8rem;
         min-height: auto;
     }
     
     .project-meta {
         flex-wrap: wrap;
-        gap: 0.8rem;
+        gap: 0.6rem;
     }
     
     .project-meta-item {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
     
     .section-header {
@@ -1610,7 +1610,7 @@ body.login-active {
     }
     
     .project-card {
-        padding: 1.5rem;
+        padding: 1rem;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         min-height: auto;
@@ -1622,37 +1622,37 @@ body.login-active {
     }
     
     .project-title a {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
     }
     
     .project-description {
-        font-size: 0.95rem;
-        line-height: 1.5;
-        margin: 1rem 0;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin: 0.8rem 0;
     }
     
     .project-meta {
         flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 1rem;
+        gap: 0.8rem;
+        margin-top: 0.8rem;
     }
     
     .project-meta-item {
-        font-size: 0.9rem;
-        min-height: 44px;
+        font-size: 0.8rem;
+        min-height: 40px;
         display: flex;
         align-items: center;
     }
     
     .project-languages {
-        margin-top: 1rem;
-        gap: 0.5rem;
+        margin-top: 0.8rem;
+        gap: 0.4rem;
     }
     
     .language-tag {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.85rem;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
         border-radius: 6px;
     }
     
