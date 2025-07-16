@@ -56,16 +56,16 @@
                         <i class="fab fa-github"></i>
                         <h1>GitHub 프로젝트 대시보드</h1>
                     </div>
-                    <div class="header-controls">
+                    <div class="header-actions">
                         <button id="refreshBtn" class="btn btn-secondary">
                             <i class="fas fa-sync-alt"></i>
                             새로고침
                         </button>
-                        <button id="settingsBtn" class="btn">
+                        <button id="settingsBtn" class="btn btn-primary">
                             <i class="fas fa-cog"></i>
                             설정
                         </button>
-                        <button id="adminBtn" class="btn btn-secondary" style="display: none;">
+                        <button id="adminBtn" class="btn btn-warning" style="display: none;">
                             <i class="fas fa-user-shield"></i>
                             관리자
                         </button>
@@ -82,63 +82,82 @@
                 <!-- 검색 및 필터 -->
                 <div class="search-section">
                     <div class="search-box">
-                        <input type="text" id="searchInput" class="search-input" placeholder="프로젝트 검색...">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="프로젝트 검색...">
                     </div>
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" data-filter="all">모든 프로젝트</button>
-                        <button class="filter-tab" data-filter="public">공개</button>
-                        <button class="filter-tab" data-filter="private">비공개</button>
-                        <button class="filter-tab" data-filter="forked">포크</button>
+                    <div class="filters">
+                        <select id="languageFilter" class="filter-select" title="언어 필터">
+                            <option value="">모든 언어</option>
+                        </select>
+                        <select id="sortFilter" class="filter-select" title="정렬 기준">
+                            <option value="updated">최근 업데이트</option>
+                            <option value="created">생성일</option>
+                            <option value="name">이름순</option>
+                            <option value="stars">스타순</option>
+                        </select>
                     </div>
                 </div>
 
                 <!-- 통계 카드 -->
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div>
-                                <h3 id="totalRepos">0</h3>
-                                <p>총 프로젝트</p>
-                            </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
                             <i class="fas fa-code"></i>
                         </div>
+                        <div class="stat-content">
+                            <h3 id="totalRepos">0</h3>
+                            <p>총 프로젝트</p>
+                        </div>
                     </div>
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div>
-                                <h3 id="totalStars">0</h3>
-                                <p>총 스타</p>
-                            </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
                             <i class="fas fa-star"></i>
                         </div>
-                    </div>
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div>
-                                <h3 id="totalForks">0</h3>
-                                <p>총 포크</p>
-                            </div>
-                            <i class="fas fa-code-branch"></i>
+                        <div class="stat-content">
+                            <h3 id="totalStars">0</h3>
+                            <p>총 스타</p>
                         </div>
                     </div>
-                    <div class="project-card">
-                        <div class="project-header">
-                            <div>
-                                <h3 id="totalWatchers">0</h3>
-                                <p>총 관찰자</p>
-                            </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-code-branch"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalForks">0</h3>
+                            <p>총 포크</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
                             <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalWatchers">0</h3>
+                            <p>총 관찰자</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- 프로젝트 그리드 -->
-                <div id="projectsGrid" class="projects-grid">
-                    <!-- 프로젝트 카드들이 여기에 동적으로 추가됩니다 -->
-                </div>
-                <div id="loadingSpinner" class="loading" style="display: none;">
-                    <div class="spinner"></div>
-                    <span>프로젝트를 불러오는 중...</span>
+                <div class="projects-section">
+                    <div class="section-header">
+                        <h2>프로젝트 목록</h2>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid" title="그리드 뷰">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="view-btn" data-view="list" title="리스트 뷰">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="projectsGrid" class="projects-grid">
+                        <!-- 프로젝트 카드들이 여기에 동적으로 추가됩니다 -->
+                    </div>
+                    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>프로젝트를 불러오는 중...</p>
+                    </div>
                 </div>
             </main>
         </div>
@@ -148,17 +167,17 @@
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">설정</h3>
-                <button class="modal-close">&times;</button>
+                <h3>설정</h3>
+                <button class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
                 <!-- <div class="setting-group">
                     <label for="githubUsername">GitHub 사용자명</label>
                     <input type="text" id="githubUsername" placeholder="사용자명을 입력하세요" value="pistolinkr">
                 </div> -->
-                <div class="form-group">
-                    <label for="githubToken" class="form-label">GitHub 토큰 (선택사항)</label>
-                    <input type="password" id="githubToken" class="form-input" placeholder="개인 액세스 토큰을 입력하세요">
+                <div class="setting-group">
+                    <label for="githubToken">GitHub 토큰 (선택사항)</label>
+                    <input type="password" id="githubToken" placeholder="개인 액세스 토큰을 입력하세요">
                     <small>더 많은 요청을 위해 개인 액세스 토큰을 사용하세요</small>
                     <div class="token-help">
                         <button type="button" id="showTokenHelp" class="btn-link">토큰 생성 방법 보기</button>
@@ -174,8 +193,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">
+                <div class="setting-group">
+                    <label>
                         <input type="checkbox" id="autoRefresh">
                         자동 새로고침 (5분마다)
                     </label>
