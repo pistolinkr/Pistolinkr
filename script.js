@@ -270,9 +270,9 @@ class GitHubDashboard {
             console.log('로드된 저장소 수:', this.repos.length);
             
             this.filteredRepos = [...this.repos];
-            this.updateStatistics();
-            this.updateLanguageFilter();
-            this.renderProjects();
+            await this.updateStatistics();
+            await this.updateLanguageFilter();
+            await this.renderProjects();
             this.showLoading(false);
             
         } catch (error) {
@@ -282,7 +282,7 @@ class GitHubDashboard {
         }
     }
 
-    filterRepositories() {
+    async filterRepositories() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const languageFilter = document.getElementById('languageFilter').value;
         const sortFilter = document.getElementById('sortFilter').value;
@@ -310,15 +310,18 @@ class GitHubDashboard {
             }
         });
 
-        this.renderProjects();
+        await this.renderProjects();
     }
 
-    updateStatistics() {
+    async updateStatistics() {
         // 도메인 URL이 설정된(개시된) 프로젝트만 통계에 포함
-        const visibleRepos = this.repos.filter(repo => {
-            const settings = this.loadProjectSettings(repo.name);
-            return settings && settings.url;
-        });
+        const visibleRepos = [];
+        for (const repo of this.repos) {
+            const settings = await this.loadProjectSettings(repo.name);
+            if (settings && settings.url) {
+                visibleRepos.push(repo);
+            }
+        }
 
         const totalRepos = visibleRepos.length;
         const totalStars = visibleRepos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
@@ -331,13 +334,16 @@ class GitHubDashboard {
         document.getElementById('totalWatchers').textContent = totalWatchers.toLocaleString();
     }
 
-    updateLanguageFilter() {
+    async updateLanguageFilter() {
         const languageFilter = document.getElementById('languageFilter');
         // 도메인 URL이 설정된(개시된) 프로젝트만 언어 필터에 포함
-        const visibleRepos = this.repos.filter(repo => {
-            const settings = this.loadProjectSettings(repo.name);
-            return settings && settings.url;
-        });
+        const visibleRepos = [];
+        for (const repo of this.repos) {
+            const settings = await this.loadProjectSettings(repo.name);
+            if (settings && settings.url) {
+                visibleRepos.push(repo);
+            }
+        }
         const languages = [...new Set(visibleRepos.map(repo => repo.language).filter(Boolean))].sort();
         // 기존 옵션 제거 (첫 번째 "모든 언어" 제외)
         while (languageFilter.children.length > 1) {
@@ -352,16 +358,31 @@ class GitHubDashboard {
         });
     }
 
-    renderProjects() {
+    async renderProjects() {
         const projectsGrid = document.getElementById('projectsGrid');
         projectsGrid.innerHTML = '';
         // 도메인 URL이 설정된(개시된) 프로젝트만 노출 + 숨김 필터 적용
-        const filtered = this.filteredRepos.filter(repo => {
-            const settings = this.loadProjectSettings(repo.name);
-            if (!settings || !settings.url) return false;
-            if (!this.isAdmin && settings.hiddenForUser) return false;
-            return true;
-        });
+        const filtered = [];
+        console.log('렌더링할 저장소 수:', this.filteredRepos.length);
+        
+        for (const repo of this.filteredRepos) {
+            const settings = await this.loadProjectSettings(repo.name);
+            console.log(`저장소 "${repo.name}" 설정:`, settings);
+            
+            if (!settings || !settings.url) {
+                console.log(`저장소 "${repo.name}" - URL 없음, 건너뜀`);
+                continue;
+            }
+            if (!this.isAdmin && settings.hiddenForUser) {
+                console.log(`저장소 "${repo.name}" - 일반 사용자에게 숨김, 건너뜀`);
+                continue;
+            }
+            console.log(`저장소 "${repo.name}" - 표시됨`);
+            filtered.push(repo);
+        }
+        
+        console.log('최종 필터링된 저장소 수:', filtered.length);
+        
         if (filtered.length === 0) {
             projectsGrid.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
@@ -442,7 +463,7 @@ class GitHubDashboard {
 
         title.textContent = repo.name;
         // 프로젝트 설정 불러오기
-        const projectSettings = this.loadProjectSettings(repo.name);
+        const projectSettings = await this.loadProjectSettings(repo.name);
 
         // 임베드 실패 안내 메시지 제거
         let embedErrorMsg = document.getElementById(embedErrorMsgId);
@@ -630,21 +651,50 @@ class GitHubDashboard {
         });
     }
 
-    loadProjectSettings(projectName) {
-        const settings = localStorage.getItem('projectSettings');
-        if (settings) {
-            const projectSettings = JSON.parse(settings);
-            return projectSettings[projectName];
+    async loadProjectSettings(projectName) {
+        try {
+            // Postgres에서 먼저 시도 (실제 저장소)
+            const postgresSettings = await window.projectSettingsAPI.getProjectSettings();
+            const postgresSetting = postgresSettings.find(setting => setting.project_name === projectName);
+            if (postgresSetting) {
+                return {
+                    url: postgresSetting.url,
+                    description: postgresSetting.description,
+                    status: postgresSetting.status,
+                    hiddenForUser: postgresSetting.hidden_for_user
+                };
+            }
+            
+            // Postgres에 없으면 Edge Config에서 시도 (캐시)
+            try {
+                const edgeSettings = await window.edgeConfigAPI.getProjectSettings();
+                const edgeSetting = edgeSettings.find(setting => setting.project_name === projectName);
+                if (edgeSetting) {
+                    return {
+                        url: edgeSetting.url,
+                        description: edgeSetting.description,
+                        status: edgeSetting.status,
+                        hiddenForUser: edgeSetting.hidden_for_user
+                    };
+                }
+            } catch (edgeError) {
+                console.log('Edge Config 로드 실패:', edgeError);
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Failed to load project settings:', error);
+            return null;
         }
-        return null;
     }
 
-    saveProjectSettings() {
+    async saveProjectSettings() {
         const projectName = document.getElementById('projectSelect').value;
         const projectUrl = document.getElementById('projectUrl').value;
         const projectDescription = document.getElementById('projectDescription').value;
         const projectStatus = document.getElementById('projectStatus').value;
         const hiddenForUser = document.getElementById('projectHiddenForUser').checked;
+        
         if (!projectName) {
             alert('프로젝트를 선택해주세요.');
             return;
@@ -659,21 +709,23 @@ class GitHubDashboard {
             alert('올바른 URL을 입력해주세요.');
             return;
         }
-        const settings = localStorage.getItem('projectSettings');
-        const projectSettings = settings ? JSON.parse(settings) : {};
-        projectSettings[projectName] = {
-            url: projectUrl,
-            description: projectDescription,
-            status: projectStatus,
-            hiddenForUser: hiddenForUser,
-            updatedAt: new Date().toISOString()
-        };
-        localStorage.setItem('projectSettings', JSON.stringify(projectSettings));
-        alert('프로젝트 설정이 저장되었습니다.');
-        this.loadConfiguredProjects();
+        
+        try {
+            await window.projectSettingsAPI.saveProjectSettings(projectName, {
+                url: projectUrl,
+                description: projectDescription,
+                status: projectStatus,
+                hiddenForUser: hiddenForUser
+            });
+            alert('프로젝트 설정이 저장되었습니다.');
+            await this.loadConfiguredProjects();
+        } catch (error) {
+            console.error('Failed to save project settings:', error);
+            alert('프로젝트 설정 저장에 실패했습니다.');
+        }
     }
 
-    deleteProjectSettings() {
+    async deleteProjectSettings() {
         const projectName = document.getElementById('projectSelect').value;
         
         if (!projectName) {
@@ -685,25 +737,24 @@ class GitHubDashboard {
             return;
         }
 
-        const settings = localStorage.getItem('projectSettings');
-        if (settings) {
-            const projectSettings = JSON.parse(settings);
-            delete projectSettings[projectName];
-            localStorage.setItem('projectSettings', JSON.stringify(projectSettings));
+        try {
+            await window.projectSettingsAPI.deleteProjectSettings(projectName);
+            alert('프로젝트 설정이 삭제되었습니다.');
+            await this.loadConfiguredProjects();
+            this.clearProjectForm();
+        } catch (error) {
+            console.error('Failed to delete project settings:', error);
+            alert('프로젝트 설정 삭제에 실패했습니다.');
         }
-
-        alert('프로젝트 설정이 삭제되었습니다.');
-        this.loadConfiguredProjects();
-        this.clearProjectForm();
     }
 
-    loadProjectSettingsForForm() {
+    async loadProjectSettingsForForm() {
         const projectName = document.getElementById('projectSelect').value;
         if (!projectName) {
             this.clearProjectForm();
             return;
         }
-        const settings = this.loadProjectSettings(projectName);
+        const settings = await this.loadProjectSettings(projectName);
         if (settings) {
             document.getElementById('projectUrl').value = settings.url || '';
             document.getElementById('projectDescription').value = settings.description || '';
@@ -721,56 +772,63 @@ class GitHubDashboard {
         document.getElementById('projectHiddenForUser').checked = false;
     }
 
-    loadConfiguredProjects() {
+    async loadConfiguredProjects() {
         const container = document.getElementById('configuredProjects');
-        const settings = localStorage.getItem('projectSettings');
         
-        if (!settings) {
-            container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">설정된 프로젝트가 없습니다.</p>';
-            return;
-        }
-
-        const projectSettings = JSON.parse(settings);
-        container.innerHTML = '';
-
-        Object.keys(projectSettings).forEach(projectName => {
-            const setting = projectSettings[projectName];
-            const projectItem = document.createElement('div');
-            projectItem.className = 'configured-project-item';
+        try {
+            console.log('설정된 프로젝트 로드 시작...');
+            const projectSettings = await window.projectSettingsAPI.getProjectSettings();
+            console.log('로드된 프로젝트 설정:', projectSettings);
             
-            const hiddenBadge = setting.hiddenForUser ? 
-                '<span class="hidden-badge" title="일반 사용자에게 숨김"><i class="fas fa-eye-slash"></i> 숨김</span>' : '';
-            const statusBadge = setting.status ? 
-                `<span class="status-badge status-${setting.status}" title="상태: ${setting.status}">${setting.status}</span>` : '';
-            
-            projectItem.innerHTML = `
-                <div class="configured-project-info">
-                    <h5>${projectName}</h5>
-                    <p>${setting.url}</p>
-                    <div class="project-badges">
-                        ${hiddenBadge}
-                        ${statusBadge}
+            if (!projectSettings || projectSettings.length === 0) {
+                console.log('설정된 프로젝트가 없음');
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">설정된 프로젝트가 없습니다.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            projectSettings.forEach(setting => {
+                const projectItem = document.createElement('div');
+                projectItem.className = 'configured-project-item';
+                
+                const hiddenBadge = setting.hidden_for_user ? 
+                    '<span class="hidden-badge" title="일반 사용자에게 숨김"><i class="fas fa-eye-slash"></i> 숨김</span>' : '';
+                const statusBadge = setting.status ? 
+                    `<span class="status-badge status-${setting.status}" title="상태: ${setting.status}">${setting.status}</span>` : '';
+                
+                projectItem.innerHTML = `
+                    <div class="configured-project-info">
+                        <h5>${setting.project_name}</h5>
+                        <p>${setting.url}</p>
+                        <div class="project-badges">
+                            ${hiddenBadge}
+                            ${statusBadge}
+                        </div>
+                        ${setting.description ? `<p class="project-description">${setting.description}</p>` : ''}
                     </div>
-                    ${setting.description ? `<p class="project-description">${setting.description}</p>` : ''}
-                </div>
-                <div class="configured-project-actions">
-                    <button onclick="dashboard.editProjectSettings('${projectName}')" title="편집">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button onclick="dashboard.deleteProjectSettingsByName('${projectName}')" title="삭제">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            
-            container.appendChild(projectItem);
-        });
+                    <div class="configured-project-actions">
+                        <button onclick="dashboard.editProjectSettings('${setting.project_name}')" title="편집">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="dashboard.deleteProjectSettingsByName('${setting.project_name}')" title="삭제">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(projectItem);
+            });
+        } catch (error) {
+            console.error('Failed to load configured projects:', error);
+            container.innerHTML = '<p style="color: var(--danger-color); text-align: center;">프로젝트 설정을 불러오는데 실패했습니다.</p>';
+        }
     }
 
-    editProjectSettings(projectName) {
+    async editProjectSettings(projectName) {
         document.getElementById('projectSelect').value = projectName;
         // 직접 값 세팅
-        const settings = this.loadProjectSettings(projectName);
+        const settings = await this.loadProjectSettings(projectName);
         if (settings) {
             document.getElementById('projectUrl').value = settings.url || '';
             document.getElementById('projectDescription').value = settings.description || '';
@@ -781,19 +839,18 @@ class GitHubDashboard {
         }
     }
 
-    deleteProjectSettingsByName(projectName) {
+    async deleteProjectSettingsByName(projectName) {
         if (!confirm(`"${projectName}" 프로젝트의 설정을 삭제하시겠습니까?`)) {
             return;
         }
 
-        const settings = localStorage.getItem('projectSettings');
-        if (settings) {
-            const projectSettings = JSON.parse(settings);
-            delete projectSettings[projectName];
-            localStorage.setItem('projectSettings', JSON.stringify(projectSettings));
+        try {
+            await window.projectSettingsAPI.deleteProjectSettings(projectName);
+            await this.loadConfiguredProjects();
+        } catch (error) {
+            console.error('Failed to delete project settings:', error);
+            alert('프로젝트 설정 삭제에 실패했습니다.');
         }
-
-        this.loadConfiguredProjects();
     }
 }
 

@@ -5,6 +5,12 @@
     },
     "api/blob.js": {
       "maxDuration": 30
+    },
+    "api/project-settings.js": {
+      "maxDuration": 30
+    },
+    "api/edge-config.js": {
+      "maxDuration": 30
     }
   },
   "headers": [

@@ -2,7 +2,7 @@
 
 # 개발 서버 시작
 echo "🚀 GitHub Dashboard 개발 서버를 시작합니다..."
-echo "📍 접속 주소: http://localhost:8000"
+echo "📍 접속 주소: http://localhost:4994"
 echo "🔑 일반 사용자 비밀번호: 0127942"
 echo "👑 관리자 비밀번호: Parky096@QZ"
 echo ""
@@ -14,4 +14,4 @@ echo ""
 echo "🛑 서버를 중지하려면 Ctrl+C를 누르세요"
 echo ""
 
-python3 -m http.server 8000 
+python3 -m http.server 4994

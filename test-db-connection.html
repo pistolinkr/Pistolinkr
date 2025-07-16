@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터베이스 연결 테스트 - Pistolinkr</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #007acc;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border-left: 4px solid #007acc;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #007acc;
+        }
+        
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #005a9e;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .result.success {
+            background: #1e3a2e;
+            border: 1px solid #28a745;
+            color: #28a745;
+        }
+        
+        .result.error {
+            background: #3a1e1e;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+        
+        .result.info {
+            background: #1e2a3a;
+            border: 1px solid #007acc;
+            color: #007acc;
+        }
+        
+        .project-item {
+            background: #2d2d2d;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+        
+        .project-item h4 {
+            margin: 0 0 10px 0;
+            color: #007acc;
+        }
+        
+        .project-item p {
+            margin: 5px 0;
+            color: #b0b0b0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+        
+        .status-badge.active {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-badge.hidden {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 데이터베이스 연결 테스트</h1>
+        
+        <div class="test-section">
+            <h3>📊 데이터베이스 연결 테스트</h3>
+            <button onclick="testDatabaseConnection()">Postgres 연결 테스트</button>
+            <button onclick="testEdgeConfig()">Edge Config 연결 테스트</button>
+            <button onclick="testProjectSettings()">프로젝트 설정 로드 테스트</button>
+            <button onclick="testSaveProject()">프로젝트 저장 테스트</button>
+            <div id="connectionResult" class="result info" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 현재 프로젝트 설정</h3>
+            <button onclick="loadCurrentSettings()">현재 설정 로드</button>
+            <div id="currentSettings"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>➕ 테스트 프로젝트 추가</h3>
+            <div style="margin-bottom: 15px;">
+                <label>프로젝트 이름:</label>
+                <input type="text" id="testProjectName" placeholder="test-project" style="margin-left: 10px; padding: 5px; border-radius: 4px; border: 1px solid #444; background: #1a1a1a; color: white;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>URL:</label>
+                <input type="text" id="testProjectUrl" placeholder="https://example.com" style="margin-left: 10px; padding: 5px; border-radius: 4px; border: 1px solid #444; background: #1a1a1a; color: white; width: 300px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>설명:</label>
+                <input type="text" id="testProjectDesc" placeholder="테스트 프로젝트입니다" style="margin-left: 10px; padding: 5px; border-radius: 4px; border: 1px solid #444; background: #1a1a1a; color: white; width: 300px;">
+            </div>
+            <button onclick="addTestProject()">테스트 프로젝트 추가</button>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        async function testDatabaseConnection() {
+            showResult('connectionResult', 'Postgres 연결을 테스트하는 중...', 'info');
+            
+            try {
+                const response = await fetch('/api/db');
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('connectionResult', `✅ Postgres 연결 성공!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResult('connectionResult', `❌ Postgres 연결 실패:\n\n${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ Postgres 연결 오류:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function testEdgeConfig() {
+            showResult('connectionResult', 'Edge Config 연결을 테스트하는 중...', 'info');
+            
+            try {
+                const response = await fetch('/api/edge-config');
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('connectionResult', `✅ Edge Config 연결 성공!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResult('connectionResult', `❌ Edge Config 연결 실패:\n\n${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ Edge Config 연결 오류:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function testProjectSettings() {
+            showResult('connectionResult', '프로젝트 설정 로드를 테스트하는 중...', 'info');
+            
+            try {
+                const response = await fetch('/api/project-settings');
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('connectionResult', `✅ 프로젝트 설정 로드 성공!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResult('connectionResult', `❌ 프로젝트 설정 로드 실패:\n\n${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ 프로젝트 설정 로드 오류:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function testSaveProject() {
+            showResult('connectionResult', '프로젝트 저장을 테스트하는 중...', 'info');
+            
+            try {
+                const testData = {
+                    project_name: 'test-project-' + Date.now(),
+                    url: 'https://example.com',
+                    description: '테스트 프로젝트',
+                    status: 'active',
+                    hidden_for_user: false
+                };
+                
+                const response = await fetch('/api/project-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('connectionResult', `✅ 프로젝트 저장 성공!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResult('connectionResult', `❌ 프로젝트 저장 실패:\n\n${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ 프로젝트 저장 오류:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function loadCurrentSettings() {
+            const container = document.getElementById('currentSettings');
+            container.innerHTML = '로딩 중...';
+            
+            try {
+                const response = await fetch('/api/project-settings');
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    if (result.data.length === 0) {
+                        container.innerHTML = '<p style="color: #ffc107;">설정된 프로젝트가 없습니다.</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    result.data.forEach(project => {
+                        const item = document.createElement('div');
+                        item.className = 'project-item';
+                        item.innerHTML = `
+                            <h4>${project.project_name}</h4>
+                            <p><strong>URL:</strong> ${project.url}</p>
+                            <p><strong>설명:</strong> ${project.description || '설명 없음'}</p>
+                            <p><strong>상태:</strong> <span class="status-badge ${project.status}">${project.status}</span></p>
+                            <p><strong>숨김:</strong> <span class="status-badge ${project.hidden_for_user ? 'hidden' : 'active'}">${project.hidden_for_user ? '예' : '아니오'}</span></p>
+                            <p><strong>업데이트:</strong> ${new Date(project.updated_at).toLocaleString()}</p>
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = '<p style="color: #dc3545;">프로젝트 설정을 불러오는데 실패했습니다.</p>';
+                }
+            } catch (error) {
+                container.innerHTML = `<p style="color: #dc3545;">오류: ${error.message}</p>`;
+            }
+        }
+
+        async function addTestProject() {
+            const projectName = document.getElementById('testProjectName').value.trim();
+            const projectUrl = document.getElementById('testProjectUrl').value.trim();
+            const projectDesc = document.getElementById('testProjectDesc').value.trim();
+            
+            if (!projectName || !projectUrl) {
+                alert('프로젝트 이름과 URL을 입력해주세요.');
+                return;
+            }
+            
+            try {
+                const testData = {
+                    project_name: projectName,
+                    url: projectUrl,
+                    description: projectDesc,
+                    status: 'active',
+                    hidden_for_user: false
+                };
+                
+                const response = await fetch('/api/project-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('테스트 프로젝트가 추가되었습니다!');
+                    loadCurrentSettings();
+                    // 입력 필드 초기화
+                    document.getElementById('testProjectName').value = '';
+                    document.getElementById('testProjectUrl').value = '';
+                    document.getElementById('testProjectDesc').value = '';
+                } else {
+                    alert('프로젝트 추가에 실패했습니다: ' + result.message);
+                }
+            } catch (error) {
+                alert('오류: ' + error.message);
+            }
+        }
+
+        // 페이지 로드 시 자동으로 현재 설정 로드
+        window.addEventListener('load', function() {
+            loadCurrentSettings();
+        });
+    </script>
+</body>
+</html> 
