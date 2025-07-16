@@ -1,34 +1,47 @@
-import { sql } from '@vercel/postgres';
+import { createClient } from '@supabase/supabase-js';
+
+// Supabase 클라이언트 생성
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      // 프로젝트 설정 테이블 생성
-      await sql`
-        CREATE TABLE IF NOT EXISTS project_settings (
-          id SERIAL PRIMARY KEY,
-          project_name VARCHAR(255) NOT NULL UNIQUE,
-          url VARCHAR(500) NOT NULL,
-          description TEXT,
-          status VARCHAR(50) DEFAULT 'active',
-          hidden_for_user BOOLEAN DEFAULT false,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-      `;
-
+      // 프로젝트 설정 테이블 생성 (Supabase에서는 수동으로 생성해야 함)
+      // 테이블이 없다면 에러가 발생할 수 있으므로 try-catch로 처리
+      
       // 모든 프로젝트 설정 조회
-      const result = await sql`SELECT * FROM project_settings ORDER BY updated_at DESC`;
+      const { data, error } = await supabase
+        .from('project_settings')
+        .select('*')
+        .order('updated_at', { ascending: false });
+      
+      if (error) {
+        // 테이블이 없는 경우 에러 메시지와 함께 빈 배열 반환
+        if (error.code === '42P01') { // 테이블이 존재하지 않는 경우
+          console.log('project_settings table does not exist. Please run the SQL script in Supabase SQL editor.');
+          res.status(200).json({
+            success: true,
+            data: [],
+            message: 'Table does not exist. Please create the table first.'
+          });
+          return;
+        }
+        throw error;
+      }
       
       res.status(200).json({
         success: true,
-        data: result.rows
+        data: data || []
       });
     } catch (error) {
       console.error('Project settings fetch error:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch project settings'
+        error: 'Failed to fetch project settings',
+        details: error.message
       });
     }
   } else if (req.method === 'POST') {
@@ -36,45 +49,70 @@ export default async function handler(req, res) {
       const { project_name, url, description, status, hidden_for_user } = req.body;
       
       // 기존 설정이 있는지 확인
-      const existing = await sql`
-        SELECT id FROM project_settings WHERE project_name = ${project_name}
-      `;
+      const { data: existing } = await supabase
+        .from('project_settings')
+        .select('id')
+        .eq('project_name', project_name)
+        .single();
       
       let result;
-      if (existing.rows.length > 0) {
+      if (existing) {
         // 기존 설정 업데이트
-        result = await sql`
-          UPDATE project_settings 
-          SET url = ${url}, description = ${description}, status = ${status}, 
-              hidden_for_user = ${hidden_for_user}, updated_at = CURRENT_TIMESTAMP
-          WHERE project_name = ${project_name}
-          RETURNING *;
-        `;
+        const { data, error } = await supabase
+          .from('project_settings')
+          .update({
+            url,
+            description,
+            status,
+            hidden_for_user,
+            updated_at: new Date().toISOString()
+          })
+          .eq('project_name', project_name)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        result = data;
       } else {
         // 새 설정 추가
-        result = await sql`
-          INSERT INTO project_settings (project_name, url, description, status, hidden_for_user)
-          VALUES (${project_name}, ${url}, ${description}, ${status}, ${hidden_for_user})
-          RETURNING *;
-        `;
+        const { data, error } = await supabase
+          .from('project_settings')
+          .insert({
+            project_name,
+            url,
+            description,
+            status,
+            hidden_for_user
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        result = data;
       }
       
       res.status(201).json({
         success: true,
-        data: result.rows[0]
+        data: result
       });
     } catch (error) {
       console.error('Project settings save error:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to save project settings'
+        error: 'Failed to save project settings',
+        details: error.message
       });
     }
   } else if (req.method === 'DELETE') {
     try {
       const { project_name } = req.query;
       
-      await sql`DELETE FROM project_settings WHERE project_name = ${project_name}`;
+      const { error } = await supabase
+        .from('project_settings')
+        .delete()
+        .eq('project_name', project_name);
+      
+      if (error) throw error;
       
       res.status(200).json({
         success: true,
@@ -84,7 +122,8 @@ export default async function handler(req, res) {
       console.error('Project settings delete error:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to delete project settings'
+        error: 'Failed to delete project settings',
+        details: error.message
       });
     }
   } else {

@@ -132,10 +132,11 @@
         
         <div class="test-section">
             <h3>📊 데이터베이스 연결 테스트</h3>
-            <button onclick="testDatabaseConnection()">Postgres 연결 테스트</button>
+            <button onclick="testDatabaseConnection()">Supabase 연결 테스트</button>
             <button onclick="testEdgeConfig()">Edge Config 연결 테스트</button>
             <button onclick="testProjectSettings()">프로젝트 설정 로드 테스트</button>
             <button onclick="testSaveProject()">프로젝트 저장 테스트</button>
+            <button onclick="testDashboardData()">대시보드 데이터 테스트</button>
             <div id="connectionResult" class="result info" style="display: none;"></div>
         </div>
         
@@ -173,19 +174,19 @@
         }
 
         async function testDatabaseConnection() {
-            showResult('connectionResult', 'Postgres 연결을 테스트하는 중...', 'info');
+            showResult('connectionResult', 'Supabase 연결을 테스트하는 중...', 'info');
             
             try {
                 const response = await fetch('/api/db');
                 const result = await response.json();
                 
                 if (result.success) {
-                    showResult('connectionResult', `✅ Postgres 연결 성공!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                    showResult('connectionResult', `✅ Supabase 연결 성공!\n\n${JSON.stringify(result, null, 2)}`, 'success');
                 } else {
-                    showResult('connectionResult', `❌ Postgres 연결 실패:\n\n${JSON.stringify(result, null, 2)}`, 'error');
+                    showResult('connectionResult', `❌ Supabase 연결 실패:\n\n${JSON.stringify(result, null, 2)}`, 'error');
                 }
             } catch (error) {
-                showResult('connectionResult', `❌ Postgres 연결 오류:\n\n${error.message}`, 'error');
+                showResult('connectionResult', `❌ Supabase 연결 오류:\n\n${error.message}`, 'error');
             }
         }
 
@@ -252,6 +253,38 @@
                 }
             } catch (error) {
                 showResult('connectionResult', `❌ 프로젝트 저장 오류:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboardData() {
+            showResult('connectionResult', '대시보드 데이터를 테스트하는 중...', 'info');
+            
+            try {
+                // 데이터 저장 테스트
+                const testData = {
+                    title: '테스트 제목 ' + Date.now(),
+                    content: '테스트 내용입니다.',
+                    url: 'https://example.com',
+                    category: 'test'
+                };
+                
+                const response = await fetch('/api/db', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult('connectionResult', `✅ 대시보드 데이터 저장 성공!\n\n${JSON.stringify(result, null, 2)}`, 'success');
+                } else {
+                    showResult('connectionResult', `❌ 대시보드 데이터 저장 실패:\n\n${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ 대시보드 데이터 테스트 오류:\n\n${error.message}`, 'error');
             }
         }
 
