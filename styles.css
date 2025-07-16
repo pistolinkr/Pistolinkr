@@ -229,6 +229,7 @@
     position: sticky;
     bottom: 0;
     z-index: 100;
+    overscroll-behavior: none;
 }
 
 .footer-actions {
@@ -462,6 +463,8 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 body.login-active {
@@ -476,6 +479,7 @@ body.login-active {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overscroll-behavior: none;
 }
 
 /* 헤더 */
@@ -591,6 +595,7 @@ body.login-active {
     margin: 0 auto;
     padding: 2rem;
     width: 100%;
+    overscroll-behavior: none;
 }
 
 /* 검색 섹션 */
@@ -1234,6 +1239,29 @@ body.login-active {
         display: none;
     }
     
+    /* 모바일 오버스크롤 방지 */
+    body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .container, .dashboard-content, .main-content {
+        overscroll-behavior: none;
+    }
+    
+    /* iOS Safari 오버스크롤 방지 */
+    html, body {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .dashboard-content {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
     .main-content {
         padding: 1rem;
     }
@@ -1333,6 +1361,8 @@ body.login-active {
         font-size: 16px;
         -webkit-text-size-adjust: 100%;
         -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
     }
     
     /* 로그인 화면 모바일 최적화 */
@@ -1733,6 +1763,7 @@ body.login-active {
     justify-content: center;
     align-items: stretch;
     overflow: hidden !important;
+    overscroll-behavior: none;
   }
   .login-header {
     margin-bottom: 1rem;
