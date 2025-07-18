@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       const { name, password } = req.body;
 
       // 허용된 이름 목록
-      const allowedNames = ['성동영', '박상현'];
+      const allowedNames = ['성동영', '박상현', 'Aventa R. Sevena'];
       
       if (!allowedNames.includes(name)) {
         return res.status(401).json({
@@ -29,12 +29,23 @@ export default async function handler(req, res) {
       let isAdmin = false;
       let isValid = false;
 
-      if (password === ADMIN_PASSWORD) {
-        isAdmin = true;
-        isValid = true;
-      } else if (password === USER_PASSWORD) {
-        isAdmin = false;
-        isValid = true;
+      // Aventa R. Sevena는 관리자 비밀번호만 사용 가능
+      if (name === 'Aventa R. Sevena') {
+        if (password === ADMIN_PASSWORD) {
+          isAdmin = true;
+          isValid = true;
+        } else {
+          isValid = false;
+        }
+      } else {
+        // 다른 사용자들은 일반 비밀번호 또는 관리자 비밀번호 사용 가능
+        if (password === ADMIN_PASSWORD) {
+          isAdmin = true;
+          isValid = true;
+        } else if (password === USER_PASSWORD) {
+          isAdmin = false;
+          isValid = true;
+        }
       }
 
       if (!isValid) {
