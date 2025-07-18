@@ -1,5 +1,31 @@
 import { createClient } from '@supabase/supabase-js';
 
+// 로컬 개발 환경에서 .env.local 파일 로드
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const envPath = path.join(process.cwd(), '.env.local');
+    
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envVars = envContent.split('\n').reduce((acc, line) => {
+        const [key, ...valueParts] = line.split('=');
+        if (key && valueParts.length > 0) {
+          const value = valueParts.join('=').trim();
+          if (!process.env[key.trim()]) {
+            process.env[key.trim()] = value;
+          }
+        }
+        return acc;
+      }, {});
+      console.log('Loaded .env.local file');
+    }
+  } catch (error) {
+    console.log('Could not load .env.local:', error.message);
+  }
+}
+
 // Supabase 클라이언트 생성
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
