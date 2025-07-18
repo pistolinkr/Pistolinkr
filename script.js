@@ -158,6 +158,11 @@ class GitHubDashboard {
             this.loadConfiguredProjects();
             this.updateSystemStatus();
         });
+
+        // 사용자 관리 이벤트
+        document.getElementById('addUser').addEventListener('click', () => {
+            this.addUser();
+        });
     }
 
     checkLoginStatus() {
@@ -772,6 +777,7 @@ class GitHubDashboard {
     async openAdminModal() {
         await this.loadProjectSelect();
         await this.loadConfiguredProjects();
+        await this.loadRegisteredUsers();
         await this.updateSystemStatus();
         this.openModal(document.getElementById('adminModal'));
         // 임베드 테스트 버튼 동적 추가
@@ -822,12 +828,26 @@ class GitHubDashboard {
                 const totalProjects = projectSettings ? projectSettings.length : 0;
                 const hiddenProjects = projectSettings ? projectSettings.filter(p => p.hidden_for_user).length : 0;
                 
-                totalProjectsElement.textContent = totalProjects;
-                hiddenProjectsElement.textContent = hiddenProjects;
+                            totalProjectsElement.textContent = totalProjects;
+            hiddenProjectsElement.textContent = hiddenProjects;
+            
+            // 사용자 통계 업데이트
+            const totalUsersElement = document.getElementById('totalUsers');
+            try {
+                const response = await fetch('/api/users');
+                const result = await response.json();
+                if (result.success) {
+                    totalUsersElement.textContent = result.data.length;
+                } else {
+                    totalUsersElement.textContent = '오류';
+                }
             } catch (error) {
-                totalProjectsElement.textContent = '오류';
-                hiddenProjectsElement.textContent = '오류';
+                totalUsersElement.textContent = '오류';
             }
+        } catch (error) {
+            totalProjectsElement.textContent = '오류';
+            hiddenProjectsElement.textContent = '오류';
+        }
         } catch (error) {
             console.error('시스템 상태 업데이트 오류:', error);
         }
@@ -1183,6 +1203,149 @@ class GitHubDashboard {
         alert(`작업 완료: ${successCount}개 성공, ${errorCount}개 실패`);
         await this.loadConfiguredProjects();
         this.loadRepositories();
+    }
+
+    // 사용자 관리 메서드들
+    async loadRegisteredUsers() {
+        const container = document.getElementById('registeredUsers');
+        
+        try {
+            const response = await fetch('/api/users');
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.error);
+            }
+            
+            container.innerHTML = '';
+            
+            if (result.data.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">등록된 사용자가 없습니다.</p>';
+                return;
+            }
+            
+            result.data.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div class="user-info">
+                        <span class="user-name">${user.name}</span>
+                        <span class="user-badge ${user.is_admin ? 'admin' : 'user'}">
+                            ${user.is_admin ? '관리자' : '사용자'}
+                        </span>
+                    </div>
+                    <div class="user-actions">
+                        <button class="user-action-btn toggle-admin" onclick="dashboard.toggleUserAdmin('${user.name}', ${!user.is_admin})">
+                            ${user.is_admin ? '일반 사용자로 변경' : '관리자로 변경'}
+                        </button>
+                        <button class="user-action-btn delete" onclick="dashboard.deleteUser('${user.name}')">
+                            삭제
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(userItem);
+            });
+        } catch (error) {
+            console.error('Failed to load users:', error);
+            container.innerHTML = '<p style="color: var(--danger-color); text-align: center;">사용자 목록을 불러오는데 실패했습니다.</p>';
+        }
+    }
+
+    async addUser() {
+        const userName = document.getElementById('newUserName').value.trim();
+        const isAdmin = document.getElementById('newUserIsAdmin').checked;
+        
+        if (!userName) {
+            alert('사용자 이름을 입력해주세요.');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: userName,
+                    is_admin: isAdmin
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('사용자가 추가되었습니다.');
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserIsAdmin').checked = false;
+                await this.loadRegisteredUsers();
+                await this.updateSystemStatus();
+            } else {
+                alert(result.error || '사용자 추가에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Failed to add user:', error);
+            alert('사용자 추가 중 오류가 발생했습니다.');
+        }
+    }
+
+    async toggleUserAdmin(userName, isAdmin) {
+        const action = isAdmin ? '관리자로 변경' : '일반 사용자로 변경';
+        
+        if (!confirm(`사용자 "${userName}"을(를) ${action}하시겠습니까?`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: userName,
+                    is_admin: isAdmin
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(`사용자 권한이 변경되었습니다.`);
+                await this.loadRegisteredUsers();
+            } else {
+                alert(result.error || '사용자 권한 변경에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Failed to toggle user admin:', error);
+            alert('사용자 권한 변경 중 오류가 발생했습니다.');
+        }
+    }
+
+    async deleteUser(userName) {
+        if (!confirm(`사용자 "${userName}"을(를) 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/users?name=${encodeURIComponent(userName)}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('사용자가 삭제되었습니다.');
+                await this.loadRegisteredUsers();
+                await this.updateSystemStatus();
+            } else {
+                alert(result.error || '사용자 삭제에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Failed to delete user:', error);
+            alert('사용자 삭제 중 오류가 발생했습니다.');
+        }
     }
 }
 

@@ -57,10 +57,42 @@ export default async function handler(req, res) {
         userPasswordSet: !!USER_PASSWORD
       });
 
-      // 허용된 이름 목록
-      const allowedNames = ['성동영', '박상현', 'Aventa R. Sevena'];
+      // 데이터베이스에서 사용자 목록 가져오기
+      let users = [];
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('name, is_admin')
+          .order('name');
+        
+        if (userError) {
+          // 테이블이 없는 경우 기본 사용자 목록 사용
+          if (userError.code === '42P01') {
+            console.log('users table does not exist. Using default users.');
+            users = [
+              { name: '성동영', is_admin: false },
+              { name: '박상현', is_admin: false },
+              { name: 'Aventa R. Sevena', is_admin: true }
+            ];
+          } else {
+            throw userError;
+          }
+        } else {
+          users = userData || [];
+        }
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        // 오류 발생 시 기본 사용자 목록 사용
+        users = [
+          { name: '성동영', is_admin: false },
+          { name: '박상현', is_admin: false },
+          { name: 'Aventa R. Sevena', is_admin: true }
+        ];
+      }
       
-      if (!allowedNames.includes(name)) {
+      // 사용자 이름 확인
+      const user = users.find(u => u.name === name);
+      if (!user) {
         return res.status(401).json({
           success: false,
           error: '허용된 이름이 아닙니다.'
@@ -71,8 +103,11 @@ export default async function handler(req, res) {
       let isAdmin = false;
       let isValid = false;
 
-      // Aventa R. Sevena는 관리자 비밀번호만 사용 가능
-      if (name === 'Aventa R. Sevena') {
+      // 사용자가 관리자인지 확인
+      const userIsAdmin = user.is_admin;
+
+      // 관리자 사용자는 관리자 비밀번호만 사용 가능
+      if (userIsAdmin) {
         if (password === ADMIN_PASSWORD) {
           isAdmin = true;
           isValid = true;
@@ -80,7 +115,7 @@ export default async function handler(req, res) {
           isValid = false;
         }
       } else {
-        // 다른 사용자들은 일반 비밀번호 또는 관리자 비밀번호 사용 가능
+        // 일반 사용자들은 일반 비밀번호 또는 관리자 비밀번호 사용 가능
         if (password === ADMIN_PASSWORD) {
           isAdmin = true;
           isValid = true;

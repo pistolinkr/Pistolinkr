@@ -990,6 +990,95 @@ body.login-active {
     color: var(--danger-color);
 }
 
+/* 사용자 관리 스타일 */
+.user-management {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.user-list h5 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.registered-users {
+    display: grid;
+    gap: 1rem;
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--background-tertiary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-name {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.user-badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.user-badge.admin {
+    background: var(--warning-color);
+    color: var(--background-primary);
+}
+
+.user-badge.user {
+    background: var(--primary-color);
+    color: var(--background-primary);
+}
+
+.user-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.user-action-btn {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-action-btn.toggle-admin {
+    background: var(--warning-color);
+    color: var(--background-primary);
+}
+
+.user-action-btn.toggle-admin:hover {
+    background: #e0a800;
+}
+
+.user-action-btn.delete {
+    background: var(--danger-color);
+    color: var(--background-primary);
+}
+
+.user-action-btn.delete:hover {
+    background: #c82333;
+}
+
 /* 작은 버튼 스타일 */
 .btn-sm {
     padding: 0.4rem 0.8rem;

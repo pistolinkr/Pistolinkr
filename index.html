@@ -347,6 +347,39 @@
                 </div>
 
                 <div class="admin-section">
+                    <h4>사용자 관리</h4>
+                    <p>로그인할 수 있는 사용자들을 관리합니다.</p>
+                    
+                    <div class="user-management">
+                        <div class="setting-item">
+                            <label for="newUserName">새 사용자 이름</label>
+                            <input type="text" id="newUserName" placeholder="사용자 이름을 입력하세요" class="admin-input">
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="newUserIsAdmin">
+                                관리자 권한 부여
+                            </label>
+                        </div>
+                        
+                        <div class="setting-actions">
+                            <button id="addUser" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i>
+                                사용자 추가
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="user-list">
+                        <h5>등록된 사용자 목록</h5>
+                        <div id="registeredUsers" class="registered-users">
+                            <!-- 등록된 사용자들이 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
                     <h4>관리자 도구</h4>
                     <p>시스템 관리 및 모니터링 도구입니다.</p>
                     
@@ -365,6 +398,10 @@
                                 <div class="status-item">
                                     <span class="status-label">숨겨진 프로젝트:</span>
                                     <span class="status-value" id="hiddenProjects">-</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">등록된 사용자:</span>
+                                    <span class="status-value" id="totalUsers">-</span>
                                 </div>
                             </div>
                         </div>

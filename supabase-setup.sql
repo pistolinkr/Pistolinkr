@@ -84,6 +84,46 @@ CREATE TRIGGER update_dashboard_data_updated_at
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
+-- 사용자 테이블 생성
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  is_admin BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 기본 사용자 데이터 삽입
+INSERT INTO users (name, is_admin)
+VALUES 
+  ('성동영', false),
+  ('박상현', false),
+  ('Aventa R. Sevena', true)
+ON CONFLICT (name) DO NOTHING;
+
+-- users 테이블에 RLS 활성화
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- 공개 읽기 정책 생성 (모든 사용자가 사용자 목록을 읽을 수 있음)
+CREATE POLICY "public can read users"
+  ON public.users
+  FOR SELECT TO anon
+  USING (true);
+
+-- 인증된 사용자가 사용자를 관리할 수 있도록 정책 생성
+CREATE POLICY "authenticated users can manage users"
+  ON public.users
+  FOR ALL TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- 업데이트 트리거 생성
+CREATE TRIGGER update_users_updated_at 
+    BEFORE UPDATE ON users 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- 테이블 생성 확인
 SELECT * FROM project_settings;
-SELECT * FROM dashboard_data; 
+SELECT * FROM dashboard_data;
+SELECT * FROM users; 
