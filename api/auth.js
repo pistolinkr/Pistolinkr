@@ -7,13 +7,29 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // 환경 변수에서 관리자 비밀번호 가져오기 (서버 사이드에서만 접근 가능)
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const USER_PASSWORD = process.env.USER_PASSWORD;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Parky096@QZ';
+const USER_PASSWORD = process.env.USER_PASSWORD || '0127942';
+
+// 디버깅용 로그 (배포 후 제거)
+console.log('Environment variables check:', {
+  ADMIN_PASSWORD: ADMIN_PASSWORD ? 'SET' : 'MISSING',
+  USER_PASSWORD: USER_PASSWORD ? 'SET' : 'MISSING',
+  hasAdminPassword: !!ADMIN_PASSWORD,
+  hasUserPassword: !!USER_PASSWORD
+});
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const { name, password } = req.body;
+
+      // 디버깅용 로그 (배포 후 제거)
+      console.log('Login attempt:', {
+        name,
+        passwordLength: password ? password.length : 0,
+        adminPasswordSet: !!ADMIN_PASSWORD,
+        userPasswordSet: !!USER_PASSWORD
+      });
 
       // 허용된 이름 목록
       const allowedNames = ['성동영', '박상현', 'Aventa R. Sevena'];
