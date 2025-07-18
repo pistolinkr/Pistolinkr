@@ -1512,9 +1512,6 @@ body.login-active {
         max-height: 100vh;
         border-radius: 0;
         box-shadow: none;
-        background: #121212;
-        opacity: 0;
-        border: none;
         padding: 2.5rem 0.5rem 2.5rem 0.5rem;
         margin: 0 auto;
         display: flex;
