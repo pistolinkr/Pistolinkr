@@ -5,8 +5,7 @@ class GitHubDashboard {
         this.filteredRepos = [];
         this.settings = this.loadSettings();
         this.autoRefreshInterval = null;
-        this.correctPassword = '0127942'; // 실제 비밀번호
-        this.adminPassword = 'Parky096@QZ'; // 관리자 비밀번호
+        // 비밀번호는 서버 사이드에서만 검증 (클라이언트에서는 제거)
         this.isLoggedIn = false;
         this.isAdmin = false;
         
@@ -174,41 +173,55 @@ class GitHubDashboard {
         }
     }
 
-    handleLogin() {
+    async handleLogin() {
         const name = document.getElementById('loginName').value.trim();
         const password = document.getElementById('loginPassword').value;
         const loginError = document.getElementById('loginError');
-        const allowedNames = ['성동영', '박상현'];
-        if (!allowedNames.includes(name)) {
+        const loginBtn = document.getElementById('loginBtn');
+        
+        // 로딩 상태 표시
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로그인 중...';
+        
+        try {
+            // 서버 사이드 인증 API 호출
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // 로그인 성공
+                sessionStorage.setItem('githubDashboardLoggedIn', 'true');
+                sessionStorage.setItem('githubDashboardAdmin', result.isAdmin.toString());
+                sessionStorage.setItem('githubDashboardToken', result.token);
+                this.isLoggedIn = true;
+                this.isAdmin = result.isAdmin;
+                this.showDashboard();
+                document.getElementById('loginPassword').value = '';
+                loginError.style.display = 'none';
+            } else {
+                // 로그인 실패
+                loginError.style.display = 'flex';
+                loginError.querySelector('span').textContent = result.error || '로그인에 실패했습니다.';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginPassword').focus();
+            }
+        } catch (error) {
+            console.error('Login error:', error);
             loginError.style.display = 'flex';
-            loginError.querySelector('span').textContent = '허용된 이름이 아닙니다.';
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('loginPassword').blur();
-            document.getElementById('loginName').focus();
-            return;
-        }
-        // 기존 비밀번호 검증 로직
-        if (password === this.adminPassword) {
-            sessionStorage.setItem('githubDashboardLoggedIn', 'true');
-            sessionStorage.setItem('githubDashboardAdmin', 'true');
-            this.isLoggedIn = true;
-            this.isAdmin = true;
-            this.showDashboard();
-            document.getElementById('loginPassword').value = '';
-            loginError.style.display = 'none';
-        } else if (password === this.correctPassword) {
-            sessionStorage.setItem('githubDashboardLoggedIn', 'true');
-            sessionStorage.setItem('githubDashboardAdmin', 'false');
-            this.isLoggedIn = true;
-            this.isAdmin = false;
-            this.showDashboard();
-            document.getElementById('loginPassword').value = '';
-            loginError.style.display = 'none';
-        } else {
-            loginError.style.display = 'flex';
-            loginError.querySelector('span').textContent = '잘못된 이름 또는 비밀번호입니다.';
+            loginError.querySelector('span').textContent = '서버 연결 오류가 발생했습니다.';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginPassword').focus();
+        } finally {
+            // 로딩 상태 해제
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>로그인</span>';
         }
     }
 
