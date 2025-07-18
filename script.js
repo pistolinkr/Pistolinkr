@@ -367,10 +367,29 @@ class GitHubDashboard {
     }
 
     async updateStatistics() {
+        // 모든 프로젝트 설정을 한 번에 로드 (성능 최적화)
+        let allProjectSettings = [];
+        try {
+            allProjectSettings = await window.projectSettingsAPI.getProjectSettings();
+        } catch (error) {
+            try {
+                allProjectSettings = await window.edgeConfigAPI.getProjectSettings();
+            } catch (edgeError) {
+                console.log('프로젝트 설정 로드 실패:', edgeError);
+                allProjectSettings = [];
+            }
+        }
+        
+        // 프로젝트 설정을 Map으로 변환
+        const settingsMap = new Map();
+        allProjectSettings.forEach(setting => {
+            settingsMap.set(setting.project_name, setting);
+        });
+        
         // 도메인 URL이 설정된(개시된) 프로젝트만 통계에 포함
         const visibleRepos = [];
         for (const repo of this.repos) {
-            const settings = await this.loadProjectSettings(repo.name);
+            const settings = settingsMap.get(repo.name);
             if (settings && settings.url) {
                 visibleRepos.push(repo);
             }
@@ -389,14 +408,35 @@ class GitHubDashboard {
 
     async updateLanguageFilter() {
         const languageFilter = document.getElementById('languageFilter');
+        
+        // 모든 프로젝트 설정을 한 번에 로드 (성능 최적화)
+        let allProjectSettings = [];
+        try {
+            allProjectSettings = await window.projectSettingsAPI.getProjectSettings();
+        } catch (error) {
+            try {
+                allProjectSettings = await window.edgeConfigAPI.getProjectSettings();
+            } catch (edgeError) {
+                console.log('프로젝트 설정 로드 실패:', edgeError);
+                allProjectSettings = [];
+            }
+        }
+        
+        // 프로젝트 설정을 Map으로 변환
+        const settingsMap = new Map();
+        allProjectSettings.forEach(setting => {
+            settingsMap.set(setting.project_name, setting);
+        });
+        
         // 도메인 URL이 설정된(개시된) 프로젝트만 언어 필터에 포함
         const visibleRepos = [];
         for (const repo of this.repos) {
-            const settings = await this.loadProjectSettings(repo.name);
+            const settings = settingsMap.get(repo.name);
             if (settings && settings.url) {
                 visibleRepos.push(repo);
             }
         }
+        
         const languages = [...new Set(visibleRepos.map(repo => repo.language).filter(Boolean))].sort();
         // 기존 옵션 제거 (첫 번째 "모든 언어" 제외)
         while (languageFilter.children.length > 1) {
@@ -415,11 +455,49 @@ class GitHubDashboard {
         const projectsGrid = document.getElementById('projectsGrid');
         projectsGrid.innerHTML = '';
         
-        const filtered = [];
         console.log('렌더링할 저장소 수:', this.filteredRepos.length);
         
+        // 모든 프로젝트 설정을 한 번에 로드 (성능 최적화)
+        let allProjectSettings = [];
+        try {
+            // Postgres에서 먼저 시도 (실제 저장소)
+            allProjectSettings = await window.projectSettingsAPI.getProjectSettings();
+            console.log('Postgres에서 로드된 프로젝트 설정:', allProjectSettings.length);
+        } catch (error) {
+            console.log('Postgres 로드 실패, Edge Config에서 시도:', error);
+            try {
+                allProjectSettings = await window.edgeConfigAPI.getProjectSettings();
+                console.log('Edge Config에서 로드된 프로젝트 설정:', allProjectSettings.length);
+            } catch (edgeError) {
+                console.log('Edge Config 로드도 실패:', edgeError);
+                allProjectSettings = [];
+            }
+        }
+        
+        // 프로젝트 설정을 Map으로 변환하여 빠른 검색 가능
+        const settingsMap = new Map();
+        allProjectSettings.forEach(setting => {
+            settingsMap.set(setting.project_name, {
+                url: setting.url,
+                description: setting.description,
+                status: setting.status,
+                hiddenForUser: setting.hidden_for_user
+            });
+        });
+        
+        // 중복 제거를 위한 Set 사용
+        const processedRepos = new Set();
+        const filtered = [];
+        
         for (const repo of this.filteredRepos) {
-            const settings = await this.loadProjectSettings(repo.name);
+            // 중복 체크
+            if (processedRepos.has(repo.name)) {
+                console.log(`저장소 "${repo.name}" - 중복 제거됨`);
+                continue;
+            }
+            processedRepos.add(repo.name);
+            
+            const settings = settingsMap.get(repo.name);
             console.log(`저장소 "${repo.name}" 설정:`, settings);
             
             // URL이 설정된 프로젝트만 표시
@@ -432,7 +510,7 @@ class GitHubDashboard {
                 continue;
             }
             console.log(`저장소 "${repo.name}" - 표시됨`);
-            filtered.push(repo);
+            filtered.push({ repo, settings });
         }
         
         console.log('최종 필터링된 저장소 수:', filtered.length);
@@ -447,16 +525,18 @@ class GitHubDashboard {
             `;
             return;
         }
-        filtered.forEach(repo => {
-            const card = this.createProjectCard(repo);
+        
+        // 프로젝트 카드 생성 및 렌더링
+        filtered.forEach(({ repo, settings }) => {
+            const card = this.createProjectCard(repo, settings);
             projectsGrid.appendChild(card);
         });
     }
 
-    createProjectCard(repo) {
+    createProjectCard(repo, settings) {
         const card = document.createElement('div');
         card.className = 'project-card';
-        card.addEventListener('click', () => this.showProjectDetails(repo));
+        card.addEventListener('click', () => this.showProjectDetails(repo, settings));
 
         const languages = repo.language ? [repo.language] : [];
         const updatedDate = new Date(repo.updated_at).toLocaleDateString('ko-KR');
@@ -476,6 +556,9 @@ class GitHubDashboard {
             </div>
         ` : '';
 
+        // 프로젝트 설명 (설정에서 가져온 설명 우선, 없으면 GitHub 설명 사용)
+        const description = settings?.description || repo.description || '설명이 없습니다.';
+
         card.innerHTML = `
             <div class="project-header">
                 <div>
@@ -491,7 +574,7 @@ class GitHubDashboard {
                 ${adminButtons}
             </div>
             <div class="project-description">
-                ${repo.description || '설명이 없습니다.'}
+                ${description}
             </div>
             <div class="project-meta">
                 <div class="project-meta-item">
@@ -521,7 +604,7 @@ class GitHubDashboard {
         return card;
     }
 
-    async showProjectDetails(repo) {
+    async showProjectDetails(repo, settings = null) {
         const modal = document.getElementById('projectModal');
         const title = document.getElementById('projectModalTitle');
         const iframe = document.getElementById('projectIframe');
@@ -532,23 +615,25 @@ class GitHubDashboard {
         const embedErrorMsgId = 'embedErrorMsg';
 
         title.textContent = repo.name;
-        // 프로젝트 설정 불러오기
-        const projectSettings = await this.loadProjectSettings(repo.name);
+        // 프로젝트 설정이 전달되지 않은 경우에만 로드
+        if (!settings) {
+            settings = await this.loadProjectSettings(repo.name);
+        }
 
         // 임베드 실패 안내 메시지 제거
         let embedErrorMsg = document.getElementById(embedErrorMsgId);
         if (embedErrorMsg) embedErrorMsg.remove();
 
-        if (projectSettings && projectSettings.url) {
-            iframe.src = projectSettings.url;
+        if (settings && settings.url) {
+            iframe.src = settings.url;
             projectInfoTitle.textContent = repo.name;
-            projectInfoDescription.textContent = projectSettings.description || repo.description || '설명이 없습니다.';
-            liveSiteLink.href = projectSettings.url;
+            projectInfoDescription.textContent = settings.description || repo.description || '설명이 없습니다.';
+            liveSiteLink.href = settings.url;
             liveSiteLink.style.display = 'inline-flex';
 
             // 임베드 실패 감지 (timeout + onerror)
             let embedTimeout = setTimeout(() => {
-                this.showEmbedError(liveSiteLink, iframe, embedErrorMsgId, projectSettings.url);
+                this.showEmbedError(liveSiteLink, iframe, embedErrorMsgId, settings.url);
             }, 3000);
             iframe.onload = () => {
                 clearTimeout(embedTimeout);
@@ -556,7 +641,7 @@ class GitHubDashboard {
             };
             iframe.onerror = () => {
                 clearTimeout(embedTimeout);
-                this.showEmbedError(liveSiteLink, iframe, embedErrorMsgId, projectSettings.url);
+                this.showEmbedError(liveSiteLink, iframe, embedErrorMsgId, settings.url);
             };
         } else {
             iframe.src = 'about:blank';
