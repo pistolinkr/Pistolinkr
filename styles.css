@@ -1542,9 +1542,36 @@ body.login-active {
         border-radius: 12px;
         display: block;
     }
+    
+    /* 모바일에서 통계 카드 더 작게 */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card {
+        padding: 0.6rem;
+        gap: 0.4rem;
+    }
+    
+    .stat-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+    
+    .stat-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.15rem;
+    }
+    
+    .stat-content p {
+        font-size: 0.65rem;
+    }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 375px) {
   .login-container {
     max-width: 100vw;
     width: 100vw;
