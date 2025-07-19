@@ -163,6 +163,53 @@ class GitHubDashboard {
         document.getElementById('addUser').addEventListener('click', () => {
             this.addUser();
         });
+
+        // 새로운 네비게이션 버튼 이벤트
+        document.getElementById('analyticsBtn').addEventListener('click', () => {
+            this.openAnalyticsModal();
+        });
+
+        document.getElementById('mobileAnalyticsBtn').addEventListener('click', () => {
+            this.openAnalyticsModal();
+        });
+
+        document.getElementById('favoritesBtn').addEventListener('click', () => {
+            this.openFavoritesModal();
+        });
+
+        document.getElementById('mobileFavoritesBtn').addEventListener('click', () => {
+            this.openFavoritesModal();
+        });
+
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            this.openNotificationsModal();
+        });
+
+        document.getElementById('mobileNotificationsBtn').addEventListener('click', () => {
+            this.openNotificationsModal();
+        });
+
+        // 즐겨찾기 모달 이벤트
+        document.getElementById('saveFavorites').addEventListener('click', () => {
+            this.saveFavoritesSettings();
+        });
+
+        document.getElementById('cancelFavorites').addEventListener('click', () => {
+            this.closeFavoritesModal();
+        });
+
+        // 알림 모달 이벤트
+        document.getElementById('saveNotifications').addEventListener('click', () => {
+            this.saveNotificationSettings();
+        });
+
+        document.getElementById('cancelNotifications').addEventListener('click', () => {
+            this.closeNotificationsModal();
+        });
+
+        document.getElementById('markAllRead').addEventListener('click', () => {
+            this.markAllNotificationsAsRead();
+        });
     }
 
     checkLoginStatus() {
@@ -1346,6 +1393,324 @@ class GitHubDashboard {
             console.error('Failed to delete user:', error);
             alert('사용자 삭제 중 오류가 발생했습니다.');
         }
+    }
+
+    // 분석 모달 메서드들
+    async openAnalyticsModal() {
+        await this.loadAnalyticsData();
+        this.openModal(document.getElementById('analyticsModal'));
+    }
+
+    async loadAnalyticsData() {
+        try {
+            // 언어별 통계 계산
+            const languageStats = this.calculateLanguageStats();
+            this.updateLanguageChart(languageStats);
+            
+            // 활동 추이 계산
+            const activityStats = this.calculateActivityStats();
+            this.updateActivityChart(activityStats);
+            
+            // 인기 프로젝트 계산
+            const popularProjects = this.getPopularProjects();
+            this.updatePopularProjects(popularProjects);
+            
+            // 성과 지표 계산
+            this.updateMetrics();
+        } catch (error) {
+            console.error('분석 데이터 로드 오류:', error);
+        }
+    }
+
+    calculateLanguageStats() {
+        const languageCount = {};
+        this.repos.forEach(repo => {
+            if (repo.language) {
+                languageCount[repo.language] = (languageCount[repo.language] || 0) + 1;
+            }
+        });
+        
+        return Object.entries(languageCount)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10)
+            .map(([language, count]) => ({ language, count }));
+    }
+
+    calculateActivityStats() {
+        const now = new Date();
+        const last30Days = Array.from({length: 30}, (_, i) => {
+            const date = new Date(now);
+            date.setDate(date.getDate() - i);
+            return date.toISOString().split('T')[0];
+        }).reverse();
+
+        return last30Days.map(date => ({
+            date,
+            count: Math.floor(Math.random() * 5) // 임시 데이터
+        }));
+    }
+
+    getPopularProjects() {
+        return this.repos
+            .sort((a, b) => b.stargazers_count - a.stargazers_count)
+            .slice(0, 5);
+    }
+
+    updateLanguageChart(languageStats) {
+        const container = document.getElementById('languageChart');
+        container.innerHTML = `
+            <div class="chart-placeholder">
+                <h5>언어별 프로젝트 분포</h5>
+                <div class="language-stats">
+                    ${languageStats.map(stat => `
+                        <div class="language-stat">
+                            <span class="language-name">${stat.language}</span>
+                            <span class="language-count">${stat.count}개</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    updateActivityChart(activityStats) {
+        const container = document.getElementById('activityChart');
+        container.innerHTML = `
+            <div class="chart-placeholder">
+                <h5>최근 30일 활동 추이</h5>
+                <div class="activity-stats">
+                    ${activityStats.map(stat => `
+                        <div class="activity-bar" style="height: ${stat.count * 10}px" title="${stat.date}: ${stat.count}개 활동"></div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    updatePopularProjects(popularProjects) {
+        const container = document.getElementById('popularProjects');
+        container.innerHTML = popularProjects.map(project => `
+            <div class="popular-project">
+                <div class="project-info">
+                    <h5>${project.name}</h5>
+                    <p>${project.description || '설명 없음'}</p>
+                </div>
+                <div class="project-stats">
+                    <span class="stat">⭐ ${project.stargazers_count}</span>
+                    <span class="stat">🍴 ${project.forks_count}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    updateMetrics() {
+        const avgStars = this.repos.length > 0 
+            ? Math.round(this.repos.reduce((sum, repo) => sum + repo.stargazers_count, 0) / this.repos.length)
+            : 0;
+        
+        const avgForks = this.repos.length > 0
+            ? Math.round(this.repos.reduce((sum, repo) => sum + repo.forks_count, 0) / this.repos.length)
+            : 0;
+
+        const languageStats = this.calculateLanguageStats();
+        const topLanguage = languageStats.length > 0 ? languageStats[0].language : '-';
+
+        document.getElementById('avgStars').textContent = avgStars;
+        document.getElementById('avgForks').textContent = avgForks;
+        document.getElementById('topLanguage').textContent = topLanguage;
+        document.getElementById('recentActivity').textContent = '활성';
+    }
+
+    // 즐겨찾기 모달 메서드들
+    openFavoritesModal() {
+        this.loadFavorites();
+        this.openModal(document.getElementById('favoritesModal'));
+    }
+
+    closeFavoritesModal() {
+        this.closeModal(document.getElementById('favoritesModal'));
+    }
+
+    loadFavorites() {
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const container = document.getElementById('favoritesList');
+        
+        if (favorites.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">즐겨찾기한 프로젝트가 없습니다.</p>';
+            return;
+        }
+
+        container.innerHTML = favorites.map(favorite => `
+            <div class="favorite-item">
+                <div class="favorite-info">
+                    <h5>${favorite.name}</h5>
+                    <p>${favorite.description || '설명 없음'}</p>
+                </div>
+                <div class="favorite-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="dashboard.openProject('${favorite.name}')">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="dashboard.removeFavorite('${favorite.name}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    saveFavoritesSettings() {
+        const autoFavoriteNew = document.getElementById('autoFavoriteNew').checked;
+        const showFavoritesFirst = document.getElementById('showFavoritesFirst').checked;
+        
+        localStorage.setItem('favoritesSettings', JSON.stringify({
+            autoFavoriteNew,
+            showFavoritesFirst
+        }));
+
+        this.closeFavoritesModal();
+        this.showSuccess('즐겨찾기 설정이 저장되었습니다.');
+    }
+
+    addToFavorites(projectName) {
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const project = this.repos.find(repo => repo.name === projectName);
+        
+        if (project && !favorites.find(f => f.name === projectName)) {
+            favorites.push({
+                name: project.name,
+                description: project.description,
+                url: project.html_url
+            });
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            this.showSuccess('즐겨찾기에 추가되었습니다.');
+        }
+    }
+
+    removeFavorite(projectName) {
+        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const updatedFavorites = favorites.filter(f => f.name !== projectName);
+        localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+        this.loadFavorites();
+        this.showSuccess('즐겨찾기에서 제거되었습니다.');
+    }
+
+    // 알림 모달 메서드들
+    openNotificationsModal() {
+        this.loadNotifications();
+        this.openModal(document.getElementById('notificationsModal'));
+    }
+
+    closeNotificationsModal() {
+        this.closeModal(document.getElementById('notificationsModal'));
+    }
+
+    loadNotifications() {
+        const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        const container = document.getElementById('notificationsList');
+        
+        if (notifications.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">알림이 없습니다.</p>';
+            return;
+        }
+
+        container.innerHTML = notifications.map(notification => `
+            <div class="notification-item ${notification.read ? '' : 'unread'}">
+                <div class="notification-icon ${notification.type}">
+                    <i class="fas ${this.getNotificationIcon(notification.type)}"></i>
+                </div>
+                <div class="notification-content">
+                    <h5>${notification.title}</h5>
+                    <p>${notification.message}</p>
+                    <div class="notification-time">${this.formatTime(notification.timestamp)}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            info: 'fa-info',
+            success: 'fa-check',
+            warning: 'fa-exclamation-triangle',
+            error: 'fa-times'
+        };
+        return icons[type] || 'fa-bell';
+    }
+
+    formatTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        
+        if (diff < 60000) return '방금 전';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}분 전`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)}시간 전`;
+        return date.toLocaleDateString();
+    }
+
+    saveNotificationSettings() {
+        const notifyNewStars = document.getElementById('notifyNewStars').checked;
+        const notifyNewForks = document.getElementById('notifyNewForks').checked;
+        const notifyUpdates = document.getElementById('notifyUpdates').checked;
+        const notifySystem = document.getElementById('notifySystem').checked;
+        
+        localStorage.setItem('notificationSettings', JSON.stringify({
+            notifyNewStars,
+            notifyNewForks,
+            notifyUpdates,
+            notifySystem
+        }));
+
+        this.closeNotificationsModal();
+        this.showSuccess('알림 설정이 저장되었습니다.');
+    }
+
+    markAllNotificationsAsRead() {
+        const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        const updatedNotifications = notifications.map(notification => ({
+            ...notification,
+            read: true
+        }));
+        localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+        this.loadNotifications();
+        this.showSuccess('모든 알림을 읽음 처리했습니다.');
+    }
+
+    addNotification(title, message, type = 'info') {
+        const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+        notifications.unshift({
+            id: Date.now(),
+            title,
+            message,
+            type,
+            timestamp: new Date().toISOString(),
+            read: false
+        });
+        
+        // 최대 50개까지만 유지
+        if (notifications.length > 50) {
+            notifications.splice(50);
+        }
+        
+        localStorage.setItem('notifications', JSON.stringify(notifications));
+    }
+
+    showSuccess(message) {
+        this.addNotification('성공', message, 'success');
+        // 간단한 토스트 메시지 표시
+        const toast = document.createElement('div');
+        toast.className = 'toast success';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    showError(message) {
+        this.addNotification('오류', message, 'error');
+        console.error(message);
     }
 }
 

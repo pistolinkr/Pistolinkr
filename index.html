@@ -64,6 +64,18 @@
                             <i class="fas fa-sync-alt"></i>
                             새로고침
                         </button>
+                        <button id="analyticsBtn" class="btn btn-info">
+                            <i class="fas fa-chart-line"></i>
+                            분석
+                        </button>
+                        <button id="favoritesBtn" class="btn btn-success">
+                            <i class="fas fa-heart"></i>
+                            즐겨찾기
+                        </button>
+                        <button id="notificationsBtn" class="btn btn-warning">
+                            <i class="fas fa-bell"></i>
+                            알림
+                        </button>
                         <button id="settingsBtn" class="btn btn-primary">
                             <i class="fas fa-cog"></i>
                             설정
@@ -168,6 +180,18 @@
                     <button id="mobileRefreshBtn" class="footer-btn" title="새로고침">
                         <i class="fas fa-sync-alt"></i>
                         <span>새로고침</span>
+                    </button>
+                    <button id="mobileAnalyticsBtn" class="footer-btn" title="분석">
+                        <i class="fas fa-chart-line"></i>
+                        <span>분석</span>
+                    </button>
+                    <button id="mobileFavoritesBtn" class="footer-btn" title="즐겨찾기">
+                        <i class="fas fa-heart"></i>
+                        <span>즐겨찾기</span>
+                    </button>
+                    <button id="mobileNotificationsBtn" class="footer-btn" title="알림">
+                        <i class="fas fa-bell"></i>
+                        <span>알림</span>
                     </button>
                     <button id="mobileSettingsBtn" class="footer-btn" title="설정">
                         <i class="fas fa-cog"></i>
@@ -407,6 +431,160 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 분석 모달 -->
+    <div id="analyticsModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>프로젝트 분석</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="analytics-section">
+                    <h4>언어별 통계</h4>
+                    <div id="languageChart" class="chart-container">
+                        <canvas id="languageChartCanvas"></canvas>
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h4>활동 추이</h4>
+                    <div id="activityChart" class="chart-container">
+                        <canvas id="activityChartCanvas"></canvas>
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h4>인기 프로젝트</h4>
+                    <div id="popularProjects" class="popular-projects">
+                        <!-- 인기 프로젝트 목록이 여기에 표시됩니다 -->
+                    </div>
+                </div>
+                
+                <div class="analytics-section">
+                    <h4>성과 지표</h4>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h5>평균 스타</h5>
+                            <span id="avgStars">0</span>
+                        </div>
+                        <div class="metric-card">
+                            <h5>평균 포크</h5>
+                            <span id="avgForks">0</span>
+                        </div>
+                        <div class="metric-card">
+                            <h5>가장 활발한 언어</h5>
+                            <span id="topLanguage">-</span>
+                        </div>
+                        <div class="metric-card">
+                            <h5>최근 활동</h5>
+                            <span id="recentActivity">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 즐겨찾기 모달 -->
+    <div id="favoritesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>즐겨찾기 프로젝트</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="favorites-section">
+                    <div class="favorites-header">
+                        <h4>즐겨찾기한 프로젝트</h4>
+                        <button id="addToFavorites" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i>
+                            즐겨찾기 추가
+                        </button>
+                    </div>
+                    <div id="favoritesList" class="favorites-list">
+                        <!-- 즐겨찾기 목록이 여기에 표시됩니다 -->
+                    </div>
+                </div>
+                
+                <div class="favorites-section">
+                    <h4>즐겨찾기 설정</h4>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="autoFavoriteNew">
+                            새 프로젝트 자동 즐겨찾기
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="showFavoritesFirst">
+                            즐겨찾기를 목록 맨 위에 표시
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelFavorites">취소</button>
+                <button class="btn btn-primary" id="saveFavorites">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 모달 -->
+    <div id="notificationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>알림 센터</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="notifications-section">
+                    <div class="notifications-header">
+                        <h4>최근 알림</h4>
+                        <button id="markAllRead" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-check-double"></i>
+                            모두 읽음 처리
+                        </button>
+                    </div>
+                    <div id="notificationsList" class="notifications-list">
+                        <!-- 알림 목록이 여기에 표시됩니다 -->
+                    </div>
+                </div>
+                
+                <div class="notifications-section">
+                    <h4>알림 설정</h4>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="notifyNewStars">
+                            새 스타 알림
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="notifyNewForks">
+                            새 포크 알림
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="notifyUpdates">
+                            프로젝트 업데이트 알림
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="notifySystem">
+                            시스템 알림
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelNotifications">취소</button>
+                <button class="btn btn-primary" id="saveNotifications">저장</button>
             </div>
         </div>
     </div>
