@@ -33,6 +33,13 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
+  console.log('Users API called:', req.method, req.url);
+  console.log('Environment check:', {
+    supabaseUrl: !!supabaseUrl,
+    supabaseServiceKey: !!supabaseServiceKey,
+    nodeEnv: process.env.NODE_ENV
+  });
+
   if (req.method === 'GET') {
     try {
       // 모든 사용자 이름 조회
@@ -73,6 +80,7 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     try {
       const { name, is_admin } = req.body;
+      console.log('POST request body:', { name, is_admin });
       
       if (!name) {
         return res.status(400).json({
@@ -82,11 +90,13 @@ export default async function handler(req, res) {
       }
       
       // 기존 사용자가 있는지 확인
-      const { data: existing } = await supabase
+      const { data: existing, error: existingError } = await supabase
         .from('users')
         .select('id')
         .eq('name', name)
         .single();
+      
+      console.log('Existing user check:', { existing, existingError });
       
       let result;
       if (existing) {
@@ -113,8 +123,25 @@ export default async function handler(req, res) {
           })
           .select();
         
+        console.log('Insert result:', { data, error });
+        
         if (error) {
           console.error('Insert error details:', error);
+          
+          // 테이블이 없는 경우 fallback 처리
+          if (error.code === '42P01') {
+            console.log('users table does not exist. Creating fallback response.');
+            res.status(200).json({
+              success: true,
+              data: {
+                name,
+                is_admin: is_admin || false,
+                message: '테이블이 없어 로컬에서 처리됩니다.'
+              }
+            });
+            return;
+          }
+          
           throw error;
         }
         result = data[0];

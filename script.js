@@ -1266,12 +1266,16 @@ class GitHubDashboard {
             
             container.innerHTML = '';
             
-            if (result.data.length === 0) {
+            // 로컬 저장소에서도 사용자 목록을 가져와서 병합
+            const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
+            const allUsers = [...result.data, ...localUsers];
+            
+            if (allUsers.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">등록된 사용자가 없습니다.</p>';
                 return;
             }
             
-            result.data.forEach(user => {
+            allUsers.forEach(user => {
                 const userItem = document.createElement('div');
                 userItem.className = 'user-item';
                 userItem.innerHTML = `
@@ -1309,6 +1313,8 @@ class GitHubDashboard {
         }
         
         try {
+            console.log('Adding user:', { userName, isAdmin });
+            
             const response = await fetch('/api/users', {
                 method: 'POST',
                 headers: {
@@ -1320,20 +1326,39 @@ class GitHubDashboard {
                 })
             });
             
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const result = await response.json();
+            console.log('Response result:', result);
             
             if (result.success) {
-                alert('사용자가 추가되었습니다.');
+                // API 응답에 message가 있으면 로컬 저장소에도 저장
+                if (result.data && result.data.message) {
+                    const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
+                    const newUser = {
+                        name: userName,
+                        is_admin: isAdmin,
+                        id: Date.now() // 임시 ID
+                    };
+                    localUsers.push(newUser);
+                    localStorage.setItem('localUsers', JSON.stringify(localUsers));
+                }
+                
+                this.showSuccess('사용자가 추가되었습니다.');
                 document.getElementById('newUserName').value = '';
                 document.getElementById('newUserIsAdmin').checked = false;
                 await this.loadRegisteredUsers();
                 await this.updateSystemStatus();
             } else {
-                alert(result.error || '사용자 추가에 실패했습니다.');
+                this.showError(result.error || '사용자 추가에 실패했습니다.');
             }
         } catch (error) {
             console.error('Failed to add user:', error);
-            alert('사용자 추가 중 오류가 발생했습니다.');
+            this.showError(`사용자 추가 중 오류가 발생했습니다: ${error.message}`);
         }
     }
 
