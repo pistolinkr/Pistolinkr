@@ -1268,14 +1268,28 @@ class GitHubDashboard {
             
             // 로컬 저장소에서도 사용자 목록을 가져와서 병합
             const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
-            const allUsers = [...result.data, ...localUsers];
             
-            if (allUsers.length === 0) {
+            // 기본 사용자 목록 (API 실패 시 fallback)
+            const defaultUsers = [
+                { name: '성동영', is_admin: false },
+                { name: '박상현', is_admin: false },
+                { name: '조훈', is_admin: false },
+                { name: 'Aventa R. Sevena', is_admin: true }
+            ];
+            
+            const allUsers = [...result.data, ...localUsers, ...defaultUsers];
+            
+            // 중복 제거 (이름 기준)
+            const uniqueUsers = allUsers.filter((user, index, self) => 
+                index === self.findIndex(u => u.name === user.name)
+            );
+            
+            if (uniqueUsers.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">등록된 사용자가 없습니다.</p>';
                 return;
             }
             
-            allUsers.forEach(user => {
+            uniqueUsers.forEach(user => {
                 const userItem = document.createElement('div');
                 userItem.className = 'user-item';
                 userItem.innerHTML = `
