@@ -72,6 +72,7 @@ export default async function handler(req, res) {
             users = [
               { name: '성동영', is_admin: false },
               { name: '박상현', is_admin: false },
+              { name: '조훈', is_admin: false },
               { name: 'Aventa R. Sevena', is_admin: true }
             ];
           } else {
@@ -86,18 +87,25 @@ export default async function handler(req, res) {
         users = [
           { name: '성동영', is_admin: false },
           { name: '박상현', is_admin: false },
+          { name: '조훈', is_admin: false },
           { name: 'Aventa R. Sevena', is_admin: true }
         ];
       }
       
       // 사용자 이름 확인
+      console.log('Available users:', users.map(u => u.name));
+      console.log('Login attempt for user:', name);
+      
       const user = users.find(u => u.name === name);
       if (!user) {
+        console.log('User not found:', name);
         return res.status(401).json({
           success: false,
           error: '허용된 이름이 아닙니다.'
         });
       }
+      
+      console.log('User found:', user);
 
       // 비밀번호 검증 (서버 사이드에서만 수행)
       let isAdmin = false;
