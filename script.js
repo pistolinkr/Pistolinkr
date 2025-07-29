@@ -160,9 +160,22 @@ class GitHubDashboard {
         });
 
         // 사용자 관리 이벤트
-        document.getElementById('addUser').addEventListener('click', () => {
-            this.addUser();
-        });
+        const addUserBtn = document.getElementById('addUser');
+        if (addUserBtn) {
+            console.log('addUser button found, adding event listener');
+            addUserBtn.addEventListener('click', (e) => {
+                console.log('addUser button clicked', e);
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // 간단한 테스트
+                alert('사용자 추가 버튼이 클릭되었습니다!');
+                
+                this.addUser();
+            });
+        } else {
+            console.error('addUser button not found');
+        }
 
         // 새로운 네비게이션 버튼 이벤트
         document.getElementById('analyticsBtn').addEventListener('click', () => {
@@ -822,11 +835,32 @@ class GitHubDashboard {
 
     // 관리자 모드: 임베드 테스트 버튼 추가
     async openAdminModal() {
+        console.log('Opening admin modal...');
+        
         await this.loadProjectSelect();
         await this.loadConfiguredProjects();
         await this.loadRegisteredUsers();
         await this.updateSystemStatus();
-        this.openModal(document.getElementById('adminModal'));
+        
+        const adminModal = document.getElementById('adminModal');
+        if (!adminModal) {
+            console.error('Admin modal not found');
+            return;
+        }
+        
+        this.openModal(adminModal);
+        
+        // 사용자 추가 폼 요소들 확인
+        const userNameInput = document.getElementById('newUserName');
+        const isAdminInput = document.getElementById('newUserIsAdmin');
+        const addUserBtn = document.getElementById('addUser');
+        
+        console.log('User form elements:', {
+            userNameInput: !!userNameInput,
+            isAdminInput: !!isAdminInput,
+            addUserBtn: !!addUserBtn
+        });
+        
         // 임베드 테스트 버튼 동적 추가
         let testBtn = document.getElementById('embedTestBtn');
         if (!testBtn) {
@@ -1318,16 +1352,36 @@ class GitHubDashboard {
     }
 
     async addUser() {
-        const userName = document.getElementById('newUserName').value.trim();
-        const isAdmin = document.getElementById('newUserIsAdmin').checked;
+        console.log('addUser function called');
+        
+        const userNameInput = document.getElementById('newUserName');
+        const isAdminInput = document.getElementById('newUserIsAdmin');
+        
+        if (!userNameInput) {
+            console.error('newUserName input not found');
+            this.showError('사용자 이름 입력 필드를 찾을 수 없습니다.');
+            return;
+        }
+        
+        if (!isAdminInput) {
+            console.error('newUserIsAdmin checkbox not found');
+            this.showError('관리자 권한 체크박스를 찾을 수 없습니다.');
+            return;
+        }
+        
+        const userName = userNameInput.value.trim();
+        const isAdmin = isAdminInput.checked;
+        
+        console.log('User input values:', { userName, isAdmin });
         
         if (!userName) {
-            alert('사용자 이름을 입력해주세요.');
+            console.log('User name is empty');
+            this.showError('사용자 이름을 입력해주세요.');
             return;
         }
         
         try {
-            console.log('Adding user:', { userName, isAdmin });
+            console.log('Sending request to add user:', { userName, isAdmin });
             
             const response = await fetch('/api/users', {
                 method: 'POST',
@@ -1341,9 +1395,12 @@ class GitHubDashboard {
             });
             
             console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('Response error text:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
             
             const result = await response.json();
@@ -1363,8 +1420,8 @@ class GitHubDashboard {
                 }
                 
                 this.showSuccess('사용자가 추가되었습니다.');
-                document.getElementById('newUserName').value = '';
-                document.getElementById('newUserIsAdmin').checked = false;
+                userNameInput.value = '';
+                isAdminInput.checked = false;
                 await this.loadRegisteredUsers();
                 await this.updateSystemStatus();
             } else {
@@ -1750,6 +1807,16 @@ class GitHubDashboard {
     showError(message) {
         this.addNotification('오류', message, 'error');
         console.error(message);
+        
+        // 사용자에게 즉시 피드백 제공
+        const toast = document.createElement('div');
+        toast.className = 'toast error';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
     }
 }
 
