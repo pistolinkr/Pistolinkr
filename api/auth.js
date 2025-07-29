@@ -73,6 +73,7 @@ export default async function handler(req, res) {
               { name: '성동영', is_admin: false },
               { name: '박상현', is_admin: false },
               { name: '조훈', is_admin: false },
+              { name: '박지윤', is_admin: false },
               { name: 'Aventa R. Sevena', is_admin: true }
             ];
           } else {
@@ -88,6 +89,7 @@ export default async function handler(req, res) {
           { name: '성동영', is_admin: false },
           { name: '박상현', is_admin: false },
           { name: '조훈', is_admin: false },
+          { name: '박지윤', is_admin: false },
           { name: 'Aventa R. Sevena', is_admin: true }
         ];
       }

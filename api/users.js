@@ -44,17 +44,18 @@ export default async function handler(req, res) {
   if (!supabaseUrl || !supabaseServiceKey) {
     console.log('Supabase configuration missing, using local mode');
     
-    if (req.method === 'GET') {
-      // 로컬 저장소에서 사용자 목록 반환 (실제로는 서버에서 localStorage에 접근할 수 없으므로 기본 목록 반환)
-      return res.status(200).json({
-        success: true,
-        data: [
-          { name: '성동영', is_admin: false },
-          { name: '박상현', is_admin: false },
-          { name: '조훈', is_admin: false },
-          { name: 'Aventa R. Sevena', is_admin: true }
-        ]
-      });
+          if (req.method === 'GET') {
+        // 로컬 저장소에서 사용자 목록 반환 (실제로는 서버에서 localStorage에 접근할 수 없으므로 기본 목록 반환)
+        return res.status(200).json({
+          success: true,
+          data: [
+            { name: '성동영', is_admin: false },
+            { name: '박상현', is_admin: false },
+            { name: '조훈', is_admin: false },
+            { name: '박지윤', is_admin: false },
+            { name: 'Aventa R. Sevena', is_admin: true }
+          ]
+        });
     } else if (req.method === 'POST') {
       const { name, is_admin } = req.body;
       console.log('Local mode: Adding user:', { name, is_admin });
