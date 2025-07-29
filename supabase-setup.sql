@@ -98,6 +98,7 @@ INSERT INTO users (name, is_admin)
 VALUES 
   ('성동영', false),
   ('박상현', false),
+  ('조훈', false),
   ('Aventa R. Sevena', true)
 ON CONFLICT (name) DO NOTHING;
 
