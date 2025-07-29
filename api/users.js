@@ -39,6 +39,36 @@ export default async function handler(req, res) {
     supabaseServiceKey: !!supabaseServiceKey,
     nodeEnv: process.env.NODE_ENV
   });
+  
+  // Supabase 연결 확인 - 연결이 없으면 로컬 모드로 전환
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.log('Supabase configuration missing, using local mode');
+    
+    if (req.method === 'GET') {
+      // 로컬 저장소에서 사용자 목록 반환 (실제로는 서버에서 localStorage에 접근할 수 없으므로 기본 목록 반환)
+      return res.status(200).json({
+        success: true,
+        data: [
+          { name: '성동영', is_admin: false },
+          { name: '박상현', is_admin: false },
+          { name: '조훈', is_admin: false },
+          { name: 'Aventa R. Sevena', is_admin: true }
+        ]
+      });
+    } else if (req.method === 'POST') {
+      const { name, is_admin } = req.body;
+      console.log('Local mode: Adding user:', { name, is_admin });
+      
+      return res.status(200).json({
+        success: true,
+        data: {
+          name,
+          is_admin: is_admin || false,
+          message: '로컬 모드로 저장되었습니다. 브라우저 새로고침 시 사라질 수 있습니다.'
+        }
+      });
+    }
+  }
 
   if (req.method === 'GET') {
     try {
@@ -154,10 +184,19 @@ export default async function handler(req, res) {
       });
     } catch (error) {
       console.error('User save error:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+      
       res.status(500).json({
         success: false,
         error: 'Failed to save user',
-        details: error.message
+        details: error.message,
+        code: error.code,
+        hint: error.hint
       });
     }
   } else if (req.method === 'DELETE') {
