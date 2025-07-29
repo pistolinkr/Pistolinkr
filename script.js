@@ -1371,15 +1371,22 @@ class GitHubDashboard {
         try {
             console.log('Sending request to add user:', { userName, isAdmin });
             
-            const response = await fetch('/api/users', {
+            // API 엔드포인트 확인
+            const apiUrl = '/api/users';
+            console.log('API URL:', apiUrl);
+            
+            const requestBody = {
+                name: userName,
+                is_admin: isAdmin
+            };
+            console.log('Request body:', requestBody);
+            
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    name: userName,
-                    is_admin: isAdmin
-                })
+                body: JSON.stringify(requestBody)
             });
             
             console.log('Response status:', response.status);
@@ -1410,14 +1417,40 @@ class GitHubDashboard {
                 this.showSuccess('사용자가 추가되었습니다.');
                 userNameInput.value = '';
                 isAdminInput.checked = false;
-                await this.loadRegisteredUsers();
-                await this.updateSystemStatus();
+                
+                // 사용자 목록 새로고침
+                try {
+                    await this.loadRegisteredUsers();
+                    await this.updateSystemStatus();
+                } catch (refreshError) {
+                    console.error('Failed to refresh user list:', refreshError);
+                }
             } else {
                 this.showError(result.error || '사용자 추가에 실패했습니다.');
             }
         } catch (error) {
             console.error('Failed to add user:', error);
             this.showError(`사용자 추가 중 오류가 발생했습니다: ${error.message}`);
+            
+            // 네트워크 오류인 경우 로컬 저장소에 저장
+            if (error.message.includes('fetch') || error.message.includes('network')) {
+                console.log('Network error detected, saving to local storage');
+                const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
+                const newUser = {
+                    name: userName,
+                    is_admin: isAdmin,
+                    id: Date.now()
+                };
+                localUsers.push(newUser);
+                localStorage.setItem('localUsers', JSON.stringify(localUsers));
+                this.showSuccess('네트워크 오류로 로컬에 저장되었습니다.');
+                
+                try {
+                    await this.loadRegisteredUsers();
+                } catch (refreshError) {
+                    console.error('Failed to refresh user list after local save:', refreshError);
+                }
+            }
         }
     }
 
@@ -1833,7 +1866,11 @@ class GitHubDashboard {
         // 간단한 테스트
         alert('사용자 추가 버튼이 클릭되었습니다!');
         
-        this.addUser();
+        // 비동기 함수 호출
+        this.addUser().catch(error => {
+            console.error('Error in addUser:', error);
+            this.showError('사용자 추가 중 오류가 발생했습니다: ' + error.message);
+        });
     }
 }
 
