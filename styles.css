@@ -300,20 +300,24 @@
     align-items: center;
     gap: var(--spacing-xs);
     padding: var(--spacing-sm);
-    background: none;
-    border: none;
-    color: var(--text-secondary);
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     cursor: pointer;
     transition: var(--transition);
     border-radius: 8px;
     min-width: 55px;
     font-size: 0.7rem;
     font-weight: 500;
+    box-shadow: var(--shadow-light);
 }
 
 .footer-btn:hover {
+    background: var(--primary-hover);
+    border-color: var(--accent-border);
     color: var(--text-primary);
-    background: var(--background-tertiary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
 }
 
 .footer-btn i {
@@ -326,20 +330,21 @@
     line-height: 1;
 }
 
-.footer-btn.logout {
-    color: var(--danger-color);
-}
-
-.footer-btn.logout:hover {
-    background: rgba(239, 68, 68, 0.1);
-}
-
+/* 모든 푸터 버튼을 동일한 스타일로 통일 */
+.footer-btn.logout,
 .footer-btn.admin {
-    color: var(--warning-color);
+    background: var(--background-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
+.footer-btn.logout:hover,
 .footer-btn.admin:hover {
-    background: rgba(245, 158, 11, 0.1);
+    background: var(--primary-hover);
+    border-color: var(--accent-border);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
 }
 
 /* 임베드 컨테이너 */
@@ -576,7 +581,7 @@ body.login-active {
     gap: var(--spacing-base);
 }
 
-/* 버튼 스타일 */
+/* 버튼 스타일 - 통일된 디자인 */
 .btn {
     padding: var(--spacing-sm) var(--spacing-lg);
     border: none;
@@ -592,59 +597,28 @@ body.login-active {
     letter-spacing: 0.025em;
 }
 
-.btn-primary {
-    background: var(--accent-color);
-    color: white;
-    border: 1px solid var(--accent-color);
-    box-shadow: var(--shadow-light);
-}
-
-.btn-primary:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
-}
-
-.btn-secondary {
+/* 모든 버튼을 새로고침 버튼과 동일한 스타일로 통일 */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-warning,
+.btn-info,
+.btn-success {
     background: var(--background-card);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-light);
 }
 
-.btn-secondary:hover {
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover,
+.btn-warning:hover,
+.btn-info:hover,
+.btn-success:hover {
     background: var(--primary-hover);
     border-color: var(--accent-border);
     color: var(--text-primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
-}
-
-.btn-danger {
-    background: var(--danger-color);
-    color: white;
-    border: 1px solid var(--danger-color);
-    box-shadow: var(--shadow-light);
-}
-
-.btn-danger:hover {
-    background: #dc2626;
-    border-color: #dc2626;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
-}
-
-.btn-warning {
-    background: var(--warning-color);
-    color: white;
-    border: 1px solid var(--warning-color);
-    box-shadow: var(--shadow-light);
-}
-
-.btn-warning:hover {
-    background: #d97706;
-    border-color: #d97706;
     transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
 }
@@ -1446,29 +1420,33 @@ body.login-active {
     min-height: 32px;
 }
 
-/* 성공 버튼 스타일 */
+/* 성공 버튼 스타일 - 통일된 디자인 */
 .btn-success {
-    background: var(--success-color);
-    color: white;
-    border: 1px solid var(--success-color);
+    background: var(--background-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
 .btn-success:hover {
-    background: #218838;
-    transform: translateY(-1px);
+    background: var(--primary-hover);
+    border-color: var(--accent-border);
+    color: var(--text-primary);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
 }
 
-/* 정보 버튼 스타일 */
+/* 정보 버튼 스타일 - 통일된 디자인 */
 .btn-info {
-    background: var(--info-color);
-    color: white;
-    border: 1px solid var(--info-color);
+    background: var(--background-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
 .btn-info:hover {
-    background: #138496;
-    transform: translateY(-1px);
+    background: var(--primary-hover);
+    border-color: var(--accent-border);
+    color: var(--text-primary);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
 }
 
