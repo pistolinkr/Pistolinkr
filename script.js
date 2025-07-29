@@ -159,23 +159,8 @@ class GitHubDashboard {
             this.updateSystemStatus();
         });
 
-        // 사용자 관리 이벤트
-        const addUserBtn = document.getElementById('addUser');
-        if (addUserBtn) {
-            console.log('addUser button found, adding event listener');
-            addUserBtn.addEventListener('click', (e) => {
-                console.log('addUser button clicked', e);
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // 간단한 테스트
-                alert('사용자 추가 버튼이 클릭되었습니다!');
-                
-                this.addUser();
-            });
-        } else {
-            console.error('addUser button not found');
-        }
+        // 사용자 관리 이벤트 - 지연 등록
+        this.setupUserManagementEvents();
 
         // 새로운 네비게이션 버튼 이벤트
         document.getElementById('analyticsBtn').addEventListener('click', () => {
@@ -860,6 +845,9 @@ class GitHubDashboard {
             isAdminInput: !!isAdminInput,
             addUserBtn: !!addUserBtn
         });
+        
+        // 사용자 관리 이벤트 다시 설정
+        this.setupUserManagementEvents();
         
         // 임베드 테스트 버튼 동적 추가
         let testBtn = document.getElementById('embedTestBtn');
@@ -1817,6 +1805,35 @@ class GitHubDashboard {
         setTimeout(() => {
             toast.remove();
         }, 5000);
+    }
+
+    setupUserManagementEvents() {
+        console.log('Setting up user management events...');
+        
+        // 사용자 추가 버튼 이벤트
+        const addUserBtn = document.getElementById('addUser');
+        if (addUserBtn) {
+            console.log('addUser button found, adding event listener');
+            
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            addUserBtn.removeEventListener('click', this.handleAddUserClick);
+            
+            // 새로운 이벤트 리스너 추가
+            addUserBtn.addEventListener('click', this.handleAddUserClick);
+        } else {
+            console.error('addUser button not found');
+        }
+    }
+
+    handleAddUserClick = (e) => {
+        console.log('addUser button clicked', e);
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // 간단한 테스트
+        alert('사용자 추가 버튼이 클릭되었습니다!');
+        
+        this.addUser();
     }
 }
 
