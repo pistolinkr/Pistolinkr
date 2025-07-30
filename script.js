@@ -394,7 +394,6 @@ class GitHubDashboard {
         
         this.loadRepositories();
         this.setupAutoRefresh();
-        this.updateAppVersion();
     }
 
     showLoginScreen() {
@@ -865,17 +864,6 @@ class GitHubDashboard {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
             lastUpdateElement.textContent = timeString;
-        }
-    }
-
-    updateAppVersion() {
-        const versionElement = document.getElementById('appVersion');
-        if (versionElement) {
-            // package.json에서 버전 정보를 가져오거나, 메타 태그에서 가져오기
-            const versionMeta = document.querySelector('meta[name="version"]');
-            if (versionMeta) {
-                versionElement.textContent = versionMeta.getAttribute('content');
-            }
         }
     }
 
