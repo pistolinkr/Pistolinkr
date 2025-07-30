@@ -135,6 +135,7 @@ class I18n {
                     refreshInterval: 'Refresh Interval',
                     theme: 'Theme',
                     language: 'Language',
+                    languageHelp: 'Choose your preferred language for the interface',
                     save: 'Save',
                     cancel: 'Cancel'
                 },
@@ -225,6 +226,7 @@ class I18n {
                     refreshInterval: '새로고침 간격',
                     theme: '테마',
                     language: '언어',
+                    languageHelp: '인터페이스 언어를 선택하세요',
                     save: '저장',
                     cancel: '취소'
                 },
@@ -315,6 +317,7 @@ class I18n {
                     refreshInterval: '更新間隔',
                     theme: 'テーマ',
                     language: '言語',
+                    languageHelp: 'インターフェースの言語を選択してください',
                     save: '保存',
                     cancel: 'キャンセル'
                 },
@@ -405,6 +408,7 @@ class I18n {
                     refreshInterval: '刷新间隔',
                     theme: '主题',
                     language: '语言',
+                    languageHelp: '选择您偏好的界面语言',
                     save: '保存',
                     cancel: '取消'
                 },
@@ -495,6 +499,7 @@ class I18n {
                     refreshInterval: 'Intervalo de Actualización',
                     theme: 'Tema',
                     language: 'Idioma',
+                    languageHelp: 'Elige tu idioma preferido para la interfaz',
                     save: 'Guardar',
                     cancel: 'Cancelar'
                 },
@@ -585,6 +590,7 @@ class I18n {
                     refreshInterval: 'Intervalle d\'actualisation',
                     theme: 'Thème',
                     language: 'Langue',
+                    languageHelp: 'Choisissez votre langue préférée pour l\'interface',
                     save: 'Enregistrer',
                     cancel: 'Annuler'
                 },
@@ -675,6 +681,7 @@ class I18n {
                     refreshInterval: 'Aktualisierungsintervall',
                     theme: 'Thema',
                     language: 'Sprache',
+                    languageHelp: 'Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche',
                     save: 'Speichern',
                     cancel: 'Abbrechen'
                 },

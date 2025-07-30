@@ -216,7 +216,7 @@
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Settings</h3>
+                <h3 data-i18n="settings.title">Settings</h3>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
@@ -224,6 +224,19 @@
                     <label for="githubUsername">GitHub 사용자명</label>
                     <input type="text" id="githubUsername" placeholder="사용자명을 입력하세요" value="pistolinkr">
                 </div> -->
+                <div class="setting-group">
+                    <label for="languageSetting" data-i18n="settings.language">Language</label>
+                    <select id="languageSetting" class="setting-select">
+                        <option value="en">English</option>
+                        <option value="ko">한국어</option>
+                        <option value="ja">日本語</option>
+                        <option value="zh">中文</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                    </select>
+                    <small data-i18n="settings.languageHelp">Choose your preferred language for the interface</small>
+                </div>
                 <div class="setting-group">
                     <label for="githubToken">GitHub Token (Optional)</label>
                     <input type="password" id="githubToken" placeholder="Enter your personal access token">
@@ -250,8 +263,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelSettings">Cancel</button>
-                <button class="btn btn-primary" id="saveSettings">Save</button>
+                <button class="btn btn-secondary" id="cancelSettings" data-i18n="settings.cancel">Cancel</button>
+                <button class="btn btn-primary" id="saveSettings" data-i18n="settings.save">Save</button>
             </div>
         </div>
     </div>

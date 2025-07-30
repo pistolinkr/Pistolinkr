@@ -812,6 +812,15 @@ class GitHubDashboard {
         document.getElementById('githubToken').value = this.settings.githubToken || '';
         document.getElementById('autoRefresh').checked = this.settings.autoRefresh || false;
         
+        // 현재 언어 설정 로드
+        if (window.i18n) {
+            const currentLocale = window.i18n.getCurrentLocale();
+            const languageSelect = document.getElementById('languageSetting');
+            if (languageSelect) {
+                languageSelect.value = currentLocale;
+            }
+        }
+        
         this.openModal(modal);
     }
 
@@ -827,6 +836,12 @@ class GitHubDashboard {
         // this.settings.githubUsername = document.getElementById('githubUsername').value.trim(); // 제거
         this.settings.githubToken = document.getElementById('githubToken').value.trim();
         this.settings.autoRefresh = document.getElementById('autoRefresh').checked;
+        
+        // 언어 설정 저장
+        const languageSetting = document.getElementById('languageSetting').value;
+        if (window.i18n && languageSetting !== window.i18n.getCurrentLocale()) {
+            window.i18n.setLocale(languageSetting);
+        }
 
         localStorage.setItem('githubDashboardSettings', JSON.stringify(this.settings));
         
