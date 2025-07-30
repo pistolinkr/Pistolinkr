@@ -179,21 +179,28 @@ http://localhost:8000
 1. **Account** → **API Keys**
 2. **Public Key** 복사 (예: `user_def456`)
 
-#### 5. 대시보드에서 설정
-1. Settings 모달 열기
-2. EmailJS 설정 섹션에서:
-   - **Public Key**: `user_def456`
-   - **Service ID**: `service_abc123`
-   - **Template ID**: `template_xyz789`
-3. 저장
+#### 5. 개발자 설정 (필수)
+1. `js/emailjs-config.js` 파일 열기
+2. 다음 값들을 실제 키로 교체:
+   ```javascript
+   PUBLIC_KEY: 'user_def456',      // 실제 Public Key
+   SERVICE_ID: 'service_abc123',   // 실제 Service ID
+   TEMPLATE_ID: 'template_xyz789'  // 실제 Template ID
+   ```
+3. 파일 저장 후 배포
 
 ### 환경 변수 설정 (선택사항)
 ```bash
-# EmailJS 설정
+# EmailJS 설정 (js/emailjs-config.js 대신 사용 가능)
 EMAILJS_PUBLIC_KEY=your_emailjs_public_key_here
 EMAILJS_SERVICE_ID=your_emailjs_service_id_here
 EMAILJS_TEMPLATE_ID=your_emailjs_template_id_here
 ```
+
+### 보안 고려사항
+- EmailJS Public Key는 클라이언트 사이드에서 사용되므로 공개되어도 안전합니다
+- Service ID와 Template ID도 공개되어도 괜찮습니다
+- 실제 이메일 서비스 인증은 EmailJS 서버에서 처리됩니다
 
 ### 장점
 - **서버 없이 작동**: 클라이언트 사이드에서 직접 이메일 전송

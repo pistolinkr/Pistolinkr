@@ -30,13 +30,20 @@ class GitHubDashboard {
     }
 
     setupEmailJS() {
-        // EmailJS 설정 초기화
-        if (window.EmailJSConfig && this.settings.emailjsPublicKey) {
-            window.EmailJSConfig.updateConfig(
-                this.settings.emailjsPublicKey,
-                this.settings.emailjsServiceId,
-                this.settings.emailjsTemplateId
-            );
+        // EmailJS 설정 초기화 (개발자가 미리 설정한 값 사용)
+        if (window.EmailJSConfig) {
+            // 환경 변수나 기본 설정에서 EmailJS 키 가져오기
+            const publicKey = process.env.EMAILJS_PUBLIC_KEY || 'YOUR_EMAILJS_PUBLIC_KEY';
+            const serviceId = process.env.EMAILJS_SERVICE_ID || 'YOUR_EMAILJS_SERVICE_ID';
+            const templateId = process.env.EMAILJS_TEMPLATE_ID || 'YOUR_EMAILJS_TEMPLATE_ID';
+            
+            // 실제 키가 설정된 경우에만 초기화
+            if (publicKey !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+                window.EmailJSConfig.updateConfig(publicKey, serviceId, templateId);
+                console.log('EmailJS 설정이 초기화되었습니다.');
+            } else {
+                console.warn('EmailJS 설정이 완료되지 않았습니다. 피드백 기능이 작동하지 않을 수 있습니다.');
+            }
         }
     }
 
@@ -837,10 +844,7 @@ class GitHubDashboard {
             }
         }
         
-        // EmailJS 설정 로드
-        document.getElementById('emailjsPublicKey').value = this.settings.emailjsPublicKey || '';
-        document.getElementById('emailjsServiceId').value = this.settings.emailjsServiceId || '';
-        document.getElementById('emailjsTemplateId').value = this.settings.emailjsTemplateId || '';
+
         
         this.openModal(modal);
     }
@@ -864,21 +868,7 @@ class GitHubDashboard {
             window.i18n.setLocale(languageSetting);
         }
 
-        // EmailJS 설정 저장
-        const emailjsPublicKey = document.getElementById('emailjsPublicKey').value.trim();
-        const emailjsServiceId = document.getElementById('emailjsServiceId').value.trim();
-        const emailjsTemplateId = document.getElementById('emailjsTemplateId').value.trim();
-        
-        this.settings.emailjsPublicKey = emailjsPublicKey;
-        this.settings.emailjsServiceId = emailjsServiceId;
-        this.settings.emailjsTemplateId = emailjsTemplateId;
-
         localStorage.setItem('githubDashboardSettings', JSON.stringify(this.settings));
-        
-        // EmailJS 설정 업데이트
-        if (emailjsPublicKey && emailjsServiceId && emailjsTemplateId) {
-            window.EmailJSConfig.updateConfig(emailjsPublicKey, emailjsServiceId, emailjsTemplateId);
-        }
         
         this.closeSettingsModal();
         this.setupAutoRefresh();

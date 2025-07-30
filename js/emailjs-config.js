@@ -1,12 +1,16 @@
 // EmailJS 설정
+// ⚠️ 개발자 전용 설정 - 실제 키로 교체하세요!
 const EmailJSConfig = {
     // EmailJS 공개 키 (https://www.emailjs.com/에서 확인)
+    // 예: 'user_abc123def456'
     PUBLIC_KEY: 'YOUR_EMAILJS_PUBLIC_KEY',
     
     // EmailJS 서비스 ID (EmailJS 대시보드에서 확인)
+    // 예: 'service_xyz789'
     SERVICE_ID: 'YOUR_EMAILJS_SERVICE_ID',
     
     // EmailJS 템플릿 ID (EmailJS 대시보드에서 확인)
+    // 예: 'template_def456'
     TEMPLATE_ID: 'YOUR_EMAILJS_TEMPLATE_ID',
     
     // 수신자 이메일
