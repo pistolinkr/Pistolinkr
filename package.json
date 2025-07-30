@@ -1,6 +1,6 @@
 {
   "name": "pistolinkr-dashboard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Personal GitHub Dashboard with admin features and URL embedding",
   "main": "index.html",
   "scripts": {
