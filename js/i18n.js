@@ -789,27 +789,7 @@ class I18n {
         document.dispatchEvent(event);
     }
 
-    // 언어 선택 UI 생성
-    createLanguageSelector() {
-        const selector = document.createElement('div');
-        selector.className = 'language-selector';
-        selector.innerHTML = `
-            <select id="languageSelect" class="language-select">
-                ${this.getSupportedLocales().map(locale => 
-                    `<option value="${locale.code}" ${locale.code === this.currentLocale ? 'selected' : ''}>
-                        ${locale.name}
-                    </option>`
-                ).join('')}
-            </select>
-        `;
 
-        // 언어 변경 이벤트 리스너
-        selector.querySelector('#languageSelect').addEventListener('change', (e) => {
-            this.setLocale(e.target.value);
-        });
-
-        return selector;
-    }
 }
 
 // 전역 i18n 인스턴스 생성

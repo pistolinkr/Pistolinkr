@@ -49,9 +49,9 @@
     <h1>다국어 지원 테스트</h1>
     
     <div class="test-section">
-        <h2>언어 선택</h2>
-        <div id="languageSelector"></div>
+        <h2>언어 정보</h2>
         <p>현재 언어: <span id="currentLocale"></span></p>
+        <p>언어 변경은 Settings 모달에서 가능합니다.</p>
     </div>
 
     <div class="test-section">
@@ -121,20 +121,9 @@
                     this.updateCurrentLocale();
                 });
                 
-                // 언어 선택기 초기화
-                this.initLanguageSelector();
-                
                 // 초기 번역 적용
                 this.updatePageTranslations();
                 this.updateCurrentLocale();
-            }
-
-            initLanguageSelector() {
-                const container = document.getElementById('languageSelector');
-                if (container && window.i18n) {
-                    const selector = window.i18n.createLanguageSelector();
-                    container.appendChild(selector);
-                }
             }
 
             updatePageTranslations() {

@@ -24,19 +24,8 @@ class GitHubDashboard {
             this.updatePageTranslations();
         });
         
-        // 언어 선택기 초기화
-        this.initLanguageSelector();
-        
         // 초기 번역 적용
         this.updatePageTranslations();
-    }
-
-    initLanguageSelector() {
-        const container = document.getElementById('languageSelector');
-        if (container && window.i18n) {
-            const selector = window.i18n.createLanguageSelector();
-            container.appendChild(selector);
-        }
     }
 
     updatePageTranslations() {
