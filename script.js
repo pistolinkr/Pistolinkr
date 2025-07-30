@@ -348,13 +348,13 @@ class GitHubDashboard {
                 headers['Authorization'] = `token ${this.settings.githubToken}`;
             }
             
-            console.log('GitHub API 호출 중:', `https://api.github.com/users/${username}/repos`);
+            console.log('Calling GitHub API:', `https://api.github.com/users/${username}/repos`);
             
             const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, {
                 headers: headers
             });
             
-            console.log('GitHub API 응답 상태:', response.status);
+            console.log('GitHub API response status:', response.status);
             
             if (!response.ok) {
                 const errorText = await response.text();
@@ -370,7 +370,7 @@ class GitHubDashboard {
             }
             
             this.repos = await response.json();
-            console.log('로드된 저장소 수:', this.repos.length);
+            console.log('Number of repositories loaded:', this.repos.length);
             
             this.filteredRepos = [...this.repos];
             await this.updateStatistics();
@@ -380,7 +380,7 @@ class GitHubDashboard {
             
         } catch (error) {
             console.error('프로젝트 로드 오류:', error);
-            this.showError(`프로젝트를 불러오는 중 오류가 발생했습니다: ${error.message}`);
+            this.showError(`Error occurred while loading projects: ${error.message}`);
             this.showLoading(false);
         }
     }
@@ -505,21 +505,21 @@ class GitHubDashboard {
         const projectsGrid = document.getElementById('projectsGrid');
         projectsGrid.innerHTML = '';
         
-        console.log('렌더링할 저장소 수:', this.filteredRepos.length);
+        console.log('Number of repositories to render:', this.filteredRepos.length);
         
         // 모든 프로젝트 설정을 한 번에 로드 (성능 최적화)
         let allProjectSettings = [];
         try {
             // Postgres에서 먼저 시도 (실제 저장소)
             allProjectSettings = await window.projectSettingsAPI.getProjectSettings();
-            console.log('Postgres에서 로드된 프로젝트 설정:', allProjectSettings.length);
+            console.log('Project settings loaded from Postgres:', allProjectSettings.length);
         } catch (error) {
-            console.log('Postgres 로드 실패, Edge Config에서 시도:', error);
+            console.log('Postgres load failed, trying Edge Config:', error);
             try {
                 allProjectSettings = await window.edgeConfigAPI.getProjectSettings();
-                console.log('Edge Config에서 로드된 프로젝트 설정:', allProjectSettings.length);
+                console.log('Project settings loaded from Edge Config:', allProjectSettings.length);
             } catch (edgeError) {
-                console.log('Edge Config 로드도 실패:', edgeError);
+                console.log('Edge Config load also failed:', edgeError);
                 allProjectSettings = [];
             }
         }
@@ -542,28 +542,28 @@ class GitHubDashboard {
         for (const repo of this.filteredRepos) {
             // 중복 체크
             if (processedRepos.has(repo.name)) {
-                console.log(`저장소 "${repo.name}" - 중복 제거됨`);
+                console.log(`Repository "${repo.name}" - duplicate removed`);
                 continue;
             }
             processedRepos.add(repo.name);
             
             const settings = settingsMap.get(repo.name);
-            console.log(`저장소 "${repo.name}" 설정:`, settings);
+            console.log(`Repository "${repo.name}" settings:`, settings);
             
             // URL이 설정된 프로젝트만 표시
             if (!settings || !settings.url) {
-                console.log(`저장소 "${repo.name}" - URL 없음, 건너뜀`);
+                console.log(`Repository "${repo.name}" - no URL, skipping`);
                 continue;
             }
             if (!this.isAdmin && settings.hiddenForUser) {
-                console.log(`저장소 "${repo.name}" - 일반 사용자에게 숨김, 건너뜀`);
+                console.log(`Repository "${repo.name}" - hidden from regular users, skipping`);
                 continue;
             }
-            console.log(`저장소 "${repo.name}" - 표시됨`);
+            console.log(`Repository "${repo.name}" - displayed`);
             filtered.push({ repo, settings });
         }
         
-        console.log('최종 필터링된 저장소 수:', filtered.length);
+        console.log('Final filtered repository count:', filtered.length);
         
         if (filtered.length === 0) {
             projectsGrid.innerHTML = `
@@ -863,7 +863,7 @@ class GitHubDashboard {
                     const repo = this.repos.find(r => r.name === projectName);
                     if (repo) this.showProjectDetails(repo);
                 } else {
-                    alert('테스트할 프로젝트를 선택하세요.');
+                    alert('Please select a project to test.');
                 }
             };
             document.querySelector('.project-url-settings').appendChild(testBtn);
@@ -961,7 +961,7 @@ class GitHubDashboard {
                     };
                 }
             } catch (edgeError) {
-                console.log('Edge Config 로드 실패:', edgeError);
+                console.log('Edge Config load failed:', edgeError);
             }
             
             return null;
@@ -979,17 +979,17 @@ class GitHubDashboard {
         const hiddenForUser = document.getElementById('projectHiddenForUser').checked;
         
         if (!projectName) {
-            alert('프로젝트를 선택해주세요.');
+            alert('Please select a project.');
             return;
         }
         if (!projectUrl) {
-            alert('도메인 URL을 입력해주세요.');
+            alert('Please enter a domain URL.');
             return;
         }
         try {
             new URL(projectUrl);
         } catch {
-            alert('올바른 URL을 입력해주세요.');
+            alert('Please enter a valid URL.');
             return;
         }
         
@@ -1000,11 +1000,11 @@ class GitHubDashboard {
                 status: projectStatus,
                 hiddenForUser: hiddenForUser
             });
-            alert('프로젝트 설정이 저장되었습니다.');
+            alert('Project settings have been saved.');
             await this.loadConfiguredProjects();
         } catch (error) {
             console.error('Failed to save project settings:', error);
-            alert('프로젝트 설정 저장에 실패했습니다.');
+            alert('Failed to save project settings.');
         }
     }
 
@@ -1012,7 +1012,7 @@ class GitHubDashboard {
         const projectName = document.getElementById('projectSelect').value;
         
         if (!projectName) {
-            alert('삭제할 프로젝트를 선택해주세요.');
+            alert('Please select a project to delete.');
             return;
         }
 
@@ -1022,7 +1022,7 @@ class GitHubDashboard {
 
         try {
             await window.projectSettingsAPI.deleteProjectSettings(projectName);
-            alert('프로젝트 설정이 삭제되었습니다.');
+            alert('Project settings have been deleted.');
             await this.loadConfiguredProjects();
             this.clearProjectForm();
         } catch (error) {
@@ -1129,7 +1129,7 @@ class GitHubDashboard {
 
         try {
             await window.projectSettingsAPI.deleteProjectSettings(projectName);
-            alert('프로젝트 설정이 삭제되었습니다.');
+            alert('Project settings have been deleted.');
             await this.loadConfiguredProjects();
             this.loadRepositories(); // 프로젝트 목록 새로고침
         } catch (error) {
@@ -1144,15 +1144,15 @@ class GitHubDashboard {
             const currentSettings = await this.loadProjectSettings(projectName);
             
             if (!currentSettings) {
-                alert('이 프로젝트는 아직 설정이 없습니다. 먼저 프로젝트 설정을 추가해주세요.');
+                alert('This project has no settings yet. Please add project settings first.');
                 this.editProjectSettings(projectName);
                 return;
             }
 
             const newHiddenState = !currentSettings.hiddenForUser;
-            const action = newHiddenState ? '숨기기' : '보이기';
+            const action = newHiddenState ? 'hide' : 'show';
             
-            if (!confirm(`프로젝트 "${projectName}"를 일반 사용자에게 ${action}하시겠습니까?`)) {
+            if (!confirm(`Do you want to ${action} project "${projectName}" from regular users?`)) {
                 return;
             }
 
@@ -1163,12 +1163,12 @@ class GitHubDashboard {
             };
 
             await window.projectSettingsAPI.saveProjectSettings(projectName, updatedSettings);
-            alert(`프로젝트가 일반 사용자에게 ${action}되었습니다.`);
+            alert(`Project has been ${action}ed from regular users.`);
             await this.loadConfiguredProjects();
             this.loadRepositories(); // 프로젝트 목록 새로고침
         } catch (error) {
             console.error('프로젝트 가시성 토글 오류:', error);
-            alert('프로젝트 가시성 변경 중 오류가 발생했습니다.');
+            alert('An error occurred while changing project visibility.');
         }
     }
 
@@ -1194,17 +1194,17 @@ class GitHubDashboard {
             }, 100);
         } catch (error) {
             console.error('프로젝트 설정 편집 오류:', error);
-            alert('프로젝트 설정 편집 중 오류가 발생했습니다.');
+            alert('An error occurred while editing project settings.');
         }
     }
 
     async bulkHideProjects() {
-        const projectNames = prompt('숨길 프로젝트 이름들을 쉼표로 구분하여 입력하세요:');
+        const projectNames = prompt('Enter project names to hide, separated by commas:');
         if (!projectNames) return;
 
         const projects = projectNames.split(',').map(name => name.trim()).filter(name => name);
         
-        if (!confirm(`${projects.length}개의 프로젝트를 일반 사용자에게 숨기시겠습니까?`)) {
+        if (!confirm(`Do you want to hide ${projects.length} projects from regular users?`)) {
             return;
         }
 
@@ -1237,12 +1237,12 @@ class GitHubDashboard {
     }
 
     async bulkShowProjects() {
-        const projectNames = prompt('보일 프로젝트 이름들을 쉼표로 구분하여 입력하세요:');
+        const projectNames = prompt('Enter project names to show, separated by commas:');
         if (!projectNames) return;
 
         const projects = projectNames.split(',').map(name => name.trim()).filter(name => name);
         
-        if (!confirm(`${projects.length}개의 프로젝트를 일반 사용자에게 보이게 하시겠습니까?`)) {
+        if (!confirm(`Do you want to show ${projects.length} projects to regular users?`)) {
             return;
         }
 
@@ -1308,7 +1308,7 @@ class GitHubDashboard {
             );
             
             if (uniqueUsers.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">등록된 사용자가 없습니다.</p>';
+                container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No registered users.</p>';
                 return;
             }
             
@@ -1319,12 +1319,12 @@ class GitHubDashboard {
                     <div class="user-info">
                         <span class="user-name">${user.name}</span>
                         <span class="user-badge ${user.is_admin ? 'admin' : 'user'}">
-                            ${user.is_admin ? '관리자' : '사용자'}
+                            ${user.is_admin ? 'Admin' : 'User'}
                         </span>
                     </div>
                     <div class="user-actions">
                         <button class="user-action-btn toggle-admin" onclick="dashboard.toggleUserAdmin('${user.name}', ${!user.is_admin})">
-                            ${user.is_admin ? '일반 사용자로 변경' : '관리자로 변경'}
+                            ${user.is_admin ? 'Change to Regular User' : 'Change to Admin'}
                         </button>
                         <button class="user-action-btn delete" onclick="dashboard.deleteUser('${user.name}')">
                             삭제
@@ -1348,7 +1348,7 @@ class GitHubDashboard {
         
         if (!userNameInput) {
             console.error('newUserName input not found');
-            this.showError('사용자 이름 입력 필드를 찾을 수 없습니다.');
+            this.showError('User name input field not found.');
             return;
         }
         
