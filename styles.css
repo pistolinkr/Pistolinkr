@@ -1806,7 +1806,10 @@ body.login-active {
 
 .setting-group input[type="text"],
 .setting-group input[type="password"],
-.setting-group select {
+.setting-group input[type="email"],
+.setting-group input[type="url"],
+.setting-group select,
+.setting-group textarea {
     width: 100%;
     padding: var(--spacing-md);
     border: 1px solid var(--border-color);
@@ -1814,6 +1817,13 @@ body.login-active {
     background: var(--background-tertiary);
     color: var(--text-primary);
     font-size: 0.9rem;
+}
+
+.setting-group textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    line-height: 1.5;
 }
 
 .setting-group select {

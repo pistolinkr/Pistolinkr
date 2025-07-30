@@ -156,6 +156,20 @@ class GitHubDashboard {
             this.openSettingsModal();
         });
 
+        // 피드백 모달 이벤트
+        document.getElementById('feedbackLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.openFeedbackModal();
+        });
+
+        document.getElementById('cancelFeedback').addEventListener('click', () => {
+            this.closeFeedbackModal();
+        });
+
+        document.getElementById('sendFeedback').addEventListener('click', () => {
+            this.sendFeedback();
+        });
+
         document.getElementById('saveSettings').addEventListener('click', () => {
             this.saveSettings();
         });
@@ -851,6 +865,95 @@ class GitHubDashboard {
             const timeString = now.toLocaleTimeString();
             lastUpdateElement.textContent = timeString;
         }
+    }
+
+    openFeedbackModal() {
+        const modal = document.getElementById('feedbackModal');
+        this.openModal(modal);
+    }
+
+    closeFeedbackModal() {
+        const modal = document.getElementById('feedbackModal');
+        this.closeModal(modal);
+        this.clearFeedbackForm();
+    }
+
+    clearFeedbackForm() {
+        document.getElementById('feedbackName').value = '';
+        document.getElementById('feedbackEmail').value = '';
+        document.getElementById('feedbackType').value = 'general';
+        document.getElementById('feedbackSubject').value = '';
+        document.getElementById('feedbackMessage').value = '';
+    }
+
+    async sendFeedback() {
+        const name = document.getElementById('feedbackName').value.trim();
+        const email = document.getElementById('feedbackEmail').value.trim();
+        const type = document.getElementById('feedbackType').value;
+        const subject = document.getElementById('feedbackSubject').value.trim();
+        const message = document.getElementById('feedbackMessage').value.trim();
+
+        // 유효성 검사
+        if (!name || !email || !subject || !message) {
+            this.showError(window.i18n.t('feedback.validationError'));
+            return;
+        }
+
+        // 이메일 형식 검사
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            this.showError('Please enter a valid email address.');
+            return;
+        }
+
+        try {
+            // 메일 링크 생성
+            const mailtoLink = this.createFeedbackMailtoLink(name, email, type, subject, message);
+            
+            // 새 창에서 메일 클라이언트 열기
+            window.open(mailtoLink, '_blank');
+            
+            // 성공 메시지 표시
+            this.showSuccess(window.i18n.t('feedback.success'));
+            
+            // 모달 닫기
+            this.closeFeedbackModal();
+            
+        } catch (error) {
+            console.error('피드백 전송 오류:', error);
+            this.showError(window.i18n.t('feedback.error'));
+        }
+    }
+
+    createFeedbackMailtoLink(name, email, type, subject, message) {
+        const feedbackTypeLabels = {
+            general: window.i18n.t('feedback.typeGeneral'),
+            bug: window.i18n.t('feedback.typeBug'),
+            feature: window.i18n.t('feedback.typeFeature'),
+            improvement: window.i18n.t('feedback.typeImprovement')
+        };
+
+        const typeLabel = feedbackTypeLabels[type] || type;
+        
+        const emailSubject = `[GitHub Dashboard Feedback] ${subject}`;
+        const emailBody = `Hello,
+
+I'm sending feedback about the GitHub Dashboard.
+
+Name: ${name}
+Email: ${email}
+Feedback Type: ${typeLabel}
+Subject: ${subject}
+
+Message:
+${message}
+
+---
+Sent from GitHub Dashboard (pistolinkr.com)`;
+
+        const mailtoLink = `mailto:pistolinkr@icloud.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        
+        return mailtoLink;
     }
 
     loadSettings() {

@@ -211,8 +211,8 @@
                         <ul class="footer-links">
                             <li><a href="#" class="footer-link" data-i18n="footer.documentation">Documentation</a></li>
                             <li><a href="#" class="footer-link" data-i18n="footer.helpCenter">Help Center</a></li>
-                            <li><a href="#" class="footer-link" data-i18n="footer.contact">Contact</a></li>
-                            <li><a href="#" class="footer-link" data-i18n="footer.feedback">Feedback</a></li>
+                            <li><a href="mailto:pistolinkr@icloud.com" class="footer-link" data-i18n="footer.contact">Contact</a></li>
+                            <li><a href="#" class="footer-link" id="feedbackLink" data-i18n="footer.feedback">Feedback</a></li>
                         </ul>
                     </div>
                     
@@ -615,6 +615,53 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelFavorites">Cancel</button>
                 <button class="btn btn-primary" id="saveFavorites">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="feedback.title">Send Feedback</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="feedback-form">
+                    <div class="setting-group">
+                        <label for="feedbackName" data-i18n="feedback.name">Your Name</label>
+                        <input type="text" id="feedbackName" data-i18n-placeholder="feedback.namePlaceholder" placeholder="Enter your name" required>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="feedbackEmail" data-i18n="feedback.email">Your Email</label>
+                        <input type="email" id="feedbackEmail" data-i18n-placeholder="feedback.emailPlaceholder" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="feedbackType" data-i18n="feedback.type">Feedback Type</label>
+                        <select id="feedbackType" class="setting-select">
+                            <option value="general" data-i18n="feedback.typeGeneral">General Feedback</option>
+                            <option value="bug" data-i18n="feedback.typeBug">Bug Report</option>
+                            <option value="feature" data-i18n="feedback.typeFeature">Feature Request</option>
+                            <option value="improvement" data-i18n="feedback.typeImprovement">Improvement Suggestion</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="feedbackSubject" data-i18n="feedback.subject">Subject</label>
+                        <input type="text" id="feedbackSubject" data-i18n-placeholder="feedback.subjectPlaceholder" placeholder="Brief description of your feedback" required>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="feedbackMessage" data-i18n="feedback.message">Message</label>
+                        <textarea id="feedbackMessage" rows="6" data-i18n-placeholder="feedback.messagePlaceholder" placeholder="Please provide detailed feedback..." required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelFeedback" data-i18n="feedback.cancel">Cancel</button>
+                <button class="btn btn-primary" id="sendFeedback" data-i18n="feedback.send">Send Feedback</button>
             </div>
         </div>
     </div>

@@ -181,6 +181,28 @@ class I18n {
                     privacyPolicy: 'Privacy Policy',
                     termsOfService: 'Terms of Service',
                     cookiePolicy: 'Cookie Policy'
+                },
+                // 피드백
+                feedback: {
+                    title: 'Send Feedback',
+                    name: 'Your Name',
+                    namePlaceholder: 'Enter your name',
+                    email: 'Your Email',
+                    emailPlaceholder: 'Enter your email',
+                    type: 'Feedback Type',
+                    typeGeneral: 'General Feedback',
+                    typeBug: 'Bug Report',
+                    typeFeature: 'Feature Request',
+                    typeImprovement: 'Improvement Suggestion',
+                    subject: 'Subject',
+                    subjectPlaceholder: 'Brief description of your feedback',
+                    message: 'Message',
+                    messagePlaceholder: 'Please provide detailed feedback...',
+                    cancel: 'Cancel',
+                    send: 'Send Feedback',
+                    success: 'Feedback sent successfully!',
+                    error: 'Failed to send feedback. Please try again.',
+                    validationError: 'Please fill in all required fields.'
                 }
             },
             ko: {
@@ -297,6 +319,28 @@ class I18n {
                     privacyPolicy: '개인정보 처리방침',
                     termsOfService: '이용약관',
                     cookiePolicy: '쿠키 정책'
+                },
+                // 피드백
+                feedback: {
+                    title: '피드백 보내기',
+                    name: '이름',
+                    namePlaceholder: '이름을 입력하세요',
+                    email: '이메일',
+                    emailPlaceholder: '이메일을 입력하세요',
+                    type: '피드백 유형',
+                    typeGeneral: '일반 피드백',
+                    typeBug: '버그 신고',
+                    typeFeature: '기능 요청',
+                    typeImprovement: '개선 제안',
+                    subject: '제목',
+                    subjectPlaceholder: '피드백에 대한 간단한 설명',
+                    message: '메시지',
+                    messagePlaceholder: '자세한 피드백을 작성해주세요...',
+                    cancel: '취소',
+                    send: '피드백 보내기',
+                    success: '피드백이 성공적으로 전송되었습니다!',
+                    error: '피드백 전송에 실패했습니다. 다시 시도해주세요.',
+                    validationError: '모든 필수 항목을 입력해주세요.'
                 }
             },
             ja: {
