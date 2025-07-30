@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <!-- 로그인 화면 -->
@@ -17,18 +18,18 @@
         <div class="login-container">
             <div class="login-header">
                 <i class="fab fa-github"></i>
-                <h1>GitHub Dashboard</h1>
-                <p>Personal Project Management System</p>
+                <h1 data-i18n="login.title">GitHub Dashboard</h1>
+                <p data-i18n="login.subtitle">Personal Project Management System</p>
             </div>
             <div class="login-form">
                 <div class="form-group">
-                    <label for="loginName">Name</label>
-                    <input type="text" id="loginName" placeholder="Enter your name" autocomplete="username" autocapitalize="words">
+                    <label for="loginName" data-i18n="login.name">Name</label>
+                    <input type="text" id="loginName" data-i18n-placeholder="login.namePlaceholder" placeholder="Enter your name" autocomplete="username" autocapitalize="words">
                 </div>
                 <div class="form-group">
-                    <label for="loginPassword">Password</label>
+                    <label for="loginPassword" data-i18n="login.password">Password</label>
                     <div class="password-input">
-                        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+                        <input type="password" id="loginPassword" data-i18n-placeholder="login.passwordPlaceholder" placeholder="Enter your password" autocomplete="current-password">
                         <button type="button" id="togglePassword" class="password-toggle" title="Show password" aria-label="Show/hide password">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -36,15 +37,15 @@
                 </div>
                 <button type="button" id="loginBtn" class="btn btn-primary login-btn">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>Login</span>
+                    <span data-i18n="login.loginButton">Login</span>
                 </button>
                 <div id="loginError" class="login-error" style="display: none;">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <span>Invalid name or password.</span>
+                    <span data-i18n="login.loginError">Invalid name or password.</span>
                 </div>
             </div>
             <div class="login-footer">
-                <p>Personal Dashboard - pistolinkr</p>
+                <p data-i18n="login.footer">Personal Dashboard - pistolinkr</p>
             </div>
         </div>
     </div>
@@ -57,36 +58,37 @@
                 <div class="header-content">
                     <div class="logo">
                         <i class="fab fa-github"></i>
-                        <h1>GitHub Project Dashboard</h1>
+                        <h1 data-i18n="header.title">GitHub Project Dashboard</h1>
                     </div>
                     <div class="header-actions">
+                        <div id="languageSelector" class="language-selector-container"></div>
                         <button id="refreshBtn" class="btn btn-secondary">
                             <i class="fas fa-sync-alt"></i>
-                            Refresh
+                            <span data-i18n="header.refresh">Refresh</span>
                         </button>
                         <button id="analyticsBtn" class="btn btn-info">
                             <i class="fas fa-chart-line"></i>
-                            Analytics
+                            <span data-i18n="header.analytics">Analytics</span>
                         </button>
                         <button id="favoritesBtn" class="btn btn-success">
                             <i class="fas fa-heart"></i>
-                            Favorites
+                            <span data-i18n="header.favorites">Favorites</span>
                         </button>
                         <button id="notificationsBtn" class="btn btn-warning">
                             <i class="fas fa-bell"></i>
-                            Notifications
+                            <span data-i18n="header.notifications">Notifications</span>
                         </button>
                         <button id="settingsBtn" class="btn btn-primary">
                             <i class="fas fa-cog"></i>
-                            Settings
+                            <span data-i18n="header.settings">Settings</span>
                         </button>
                         <button id="adminBtn" class="btn btn-warning" style="display: none;">
                             <i class="fas fa-user-shield"></i>
-                            Admin
+                            <span data-i18n="header.admin">Admin</span>
                         </button>
                         <button id="logoutBtn" class="btn btn-danger">
                             <i class="fas fa-sign-out-alt"></i>
-                            Logout
+                            <span data-i18n="header.logout">Logout</span>
                         </button>
                     </div>
                 </div>
@@ -98,7 +100,7 @@
                 <div class="search-section">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Search projects...">
+                        <input type="text" id="searchInput" data-i18n-placeholder="search.placeholder" placeholder="Search projects...">
                     </div>
                 </div>
 
@@ -110,7 +112,7 @@
                         </div>
                         <div class="stat-content">
                             <h3 id="totalRepos">0</h3>
-                            <p>Total Projects</p>
+                            <p data-i18n="stats.totalProjects">Total Projects</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -119,7 +121,7 @@
                         </div>
                         <div class="stat-content">
                             <h3 id="totalStars">0</h3>
-                            <p>Total Stars</p>
+                            <p data-i18n="stats.totalStars">Total Stars</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -128,7 +130,7 @@
                         </div>
                         <div class="stat-content">
                             <h3 id="totalForks">0</h3>
-                            <p>Total Forks</p>
+                            <p data-i18n="stats.totalForks">Total Forks</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -137,7 +139,7 @@
                         </div>
                         <div class="stat-content">
                             <h3 id="totalWatchers">0</h3>
-                            <p>Total Watchers</p>
+                            <p data-i18n="stats.totalWatchers">Total Watchers</p>
                         </div>
                     </div>
                 </div>

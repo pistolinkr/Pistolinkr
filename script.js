@@ -15,6 +15,80 @@ class GitHubDashboard {
     init() {
         this.bindEvents();
         this.checkLoginStatus();
+        this.setupI18n();
+    }
+
+    setupI18n() {
+        // 언어 변경 이벤트 리스너
+        document.addEventListener('localeChanged', () => {
+            this.updatePageTranslations();
+        });
+        
+        // 언어 선택기 초기화
+        this.initLanguageSelector();
+        
+        // 초기 번역 적용
+        this.updatePageTranslations();
+    }
+
+    initLanguageSelector() {
+        const container = document.getElementById('languageSelector');
+        if (container && window.i18n) {
+            const selector = window.i18n.createLanguageSelector();
+            container.appendChild(selector);
+        }
+    }
+
+    updatePageTranslations() {
+        // data-i18n 속성이 있는 모든 요소 번역
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            const translation = window.i18n.t(key);
+            if (translation && translation !== key) {
+                element.textContent = translation;
+            }
+        });
+
+        // data-i18n-placeholder 속성이 있는 모든 요소 번역
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+            const key = element.getAttribute('data-i18n-placeholder');
+            const translation = window.i18n.t(key);
+            if (translation && translation !== key) {
+                element.placeholder = translation;
+            }
+        });
+
+        // 동적으로 생성된 요소들도 번역
+        this.updateDynamicTranslations();
+    }
+
+    updateDynamicTranslations() {
+        // 언어 필터 옵션 업데이트
+        const languageFilter = document.getElementById('languageFilter');
+        if (languageFilter) {
+            const allLanguagesOption = languageFilter.querySelector('option[value=""]');
+            if (allLanguagesOption) {
+                allLanguagesOption.textContent = window.i18n.t('search.languageFilter');
+            }
+        }
+
+        // 정렬 필터 옵션 업데이트
+        const sortFilter = document.getElementById('sortFilter');
+        if (sortFilter) {
+            const options = sortFilter.querySelectorAll('option');
+            options.forEach(option => {
+                const value = option.value;
+                if (value === 'updated') {
+                    option.textContent = window.i18n.t('search.sortOptions.updated');
+                } else if (value === 'created') {
+                    option.textContent = window.i18n.t('search.sortOptions.created');
+                } else if (value === 'name') {
+                    option.textContent = window.i18n.t('search.sortOptions.name');
+                } else if (value === 'stars') {
+                    option.textContent = window.i18n.t('search.sortOptions.stars');
+                }
+            });
+        }
     }
 
     bindEvents() {
