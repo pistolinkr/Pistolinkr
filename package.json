@@ -1,6 +1,6 @@
 {
   "name": "pistolinkr-dashboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Personal GitHub Dashboard with admin features and URL embedding",
   "main": "index.html",
   "scripts": {
@@ -10,7 +10,17 @@
     "deploy": "git add . && git commit -m \"Update dashboard\" && git push",
     "status": "git status",
     "log": "git log --oneline -10",
-    "install-deps": "npm install"
+    "install-deps": "npm install",
+    "version:patch": "node scripts/version-update.js patch",
+    "version:minor": "node scripts/version-update.js minor",
+    "version:major": "node scripts/version-update.js major",
+    "deploy:patch": "npm run version:patch && git commit -m \"$(node -e \"console.log(require('./scripts/version-update.js').generateCommitMessage('patch', require('./package.json').version))\") && git push",
+    "deploy:minor": "npm run version:minor && git commit -m \"$(node -e \"console.log(require('./scripts/version-update.js').generateCommitMessage('minor', require('./package.json').version))\") && git push",
+    "deploy:major": "npm run version:major && git commit -m \"$(node -e \"console.log(require('./scripts/version-update.js').generateCommitMessage('major', require('./package.json').version))\") && git push",
+    "deploy:auto": "./scripts/deploy.sh",
+    "deploy:auto:patch": "./scripts/deploy.sh patch",
+    "deploy:auto:minor": "./scripts/deploy.sh minor",
+    "deploy:auto:major": "./scripts/deploy.sh major"
   },
   "keywords": [
     "github",
