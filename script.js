@@ -440,6 +440,7 @@ class GitHubDashboard {
             await this.updateLanguageFilter();
             await this.renderProjects();
             this.showLoading(false);
+            this.updateFooterLastUpdate();
             
         } catch (error) {
             console.error('프로젝트 로드 오류:', error);
@@ -836,9 +837,19 @@ class GitHubDashboard {
         
         this.closeSettingsModal();
         this.setupAutoRefresh();
+        this.updateFooterLastUpdate();
         
         if (this.settings.githubUsername) {
             this.loadRepositories();
+        }
+    }
+
+    updateFooterLastUpdate() {
+        const lastUpdateElement = document.getElementById('lastUpdateTime');
+        if (lastUpdateElement) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            lastUpdateElement.textContent = timeString;
         }
     }
 

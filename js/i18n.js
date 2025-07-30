@@ -156,6 +156,31 @@ class I18n {
                 favorites: {
                     title: 'Favorites',
                     noFavorites: 'No favorite projects'
+                },
+                // 푸터
+                footer: {
+                    title: 'GitHub Dashboard',
+                    description: 'Personal project management system for developers',
+                    quickLinks: 'Quick Links',
+                    dashboard: 'Dashboard',
+                    analytics: 'Analytics',
+                    favorites: 'Favorites',
+                    settings: 'Settings',
+                    support: 'Support',
+                    documentation: 'Documentation',
+                    helpCenter: 'Help Center',
+                    contact: 'Contact',
+                    feedback: 'Feedback',
+                    systemInfo: 'System Info',
+                    version: 'Version:',
+                    status: 'Status:',
+                    online: 'Online',
+                    lastUpdated: 'Last Updated:',
+                    justNow: 'Just now',
+                    copyright: '© 2024 GitHub Dashboard. Built with ❤️ by pistolinkr',
+                    privacyPolicy: 'Privacy Policy',
+                    termsOfService: 'Terms of Service',
+                    cookiePolicy: 'Cookie Policy'
                 }
             },
             ko: {
@@ -247,6 +272,31 @@ class I18n {
                 favorites: {
                     title: '즐겨찾기',
                     noFavorites: '즐겨찾기한 프로젝트가 없습니다'
+                },
+                // 푸터
+                footer: {
+                    title: 'GitHub 대시보드',
+                    description: '개발자를 위한 개인 프로젝트 관리 시스템',
+                    quickLinks: '빠른 링크',
+                    dashboard: '대시보드',
+                    analytics: '분석',
+                    favorites: '즐겨찾기',
+                    settings: '설정',
+                    support: '지원',
+                    documentation: '문서',
+                    helpCenter: '도움말 센터',
+                    contact: '연락처',
+                    feedback: '피드백',
+                    systemInfo: '시스템 정보',
+                    version: '버전:',
+                    status: '상태:',
+                    online: '온라인',
+                    lastUpdated: '마지막 업데이트:',
+                    justNow: '방금 전',
+                    copyright: '© 2024 GitHub 대시보드. pistolinkr이 ❤️로 제작',
+                    privacyPolicy: '개인정보 처리방침',
+                    termsOfService: '이용약관',
+                    cookiePolicy: '쿠키 정책'
                 }
             },
             ja: {
