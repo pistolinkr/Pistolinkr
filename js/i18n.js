@@ -134,10 +134,19 @@ class I18n {
                     autoRefresh: 'Auto Refresh',
                     refreshInterval: 'Refresh Interval',
                     theme: 'Theme',
-                    language: 'Language',
-                    languageHelp: 'Choose your preferred language for the interface',
-                    save: 'Save',
-                    cancel: 'Cancel'
+                                    language: 'Language',
+                languageHelp: 'Choose your preferred language for the interface',
+                emailjsPublicKey: 'EmailJS Public Key',
+                emailjsPublicKeyPlaceholder: 'Enter your EmailJS public key',
+                emailjsPublicKeyHelp: 'Your EmailJS public key for feedback system',
+                emailjsServiceId: 'EmailJS Service ID',
+                emailjsServiceIdPlaceholder: 'Enter your EmailJS service ID',
+                emailjsServiceIdHelp: 'Your EmailJS service ID for email sending',
+                emailjsTemplateId: 'EmailJS Template ID',
+                emailjsTemplateIdPlaceholder: 'Enter your EmailJS template ID',
+                emailjsTemplateIdHelp: 'Your EmailJS template ID for email formatting',
+                save: 'Save',
+                cancel: 'Cancel'
                 },
                 // 관리자
                 admin: {
@@ -272,10 +281,19 @@ class I18n {
                     autoRefresh: '자동 새로고침',
                     refreshInterval: '새로고침 간격',
                     theme: '테마',
-                    language: '언어',
-                    languageHelp: '인터페이스 언어를 선택하세요',
-                    save: '저장',
-                    cancel: '취소'
+                                    language: '언어',
+                languageHelp: '인터페이스 언어를 선택하세요',
+                emailjsPublicKey: 'EmailJS 공개 키',
+                emailjsPublicKeyPlaceholder: 'EmailJS 공개 키를 입력하세요',
+                emailjsPublicKeyHelp: '피드백 시스템을 위한 EmailJS 공개 키',
+                emailjsServiceId: 'EmailJS 서비스 ID',
+                emailjsServiceIdPlaceholder: 'EmailJS 서비스 ID를 입력하세요',
+                emailjsServiceIdHelp: '이메일 전송을 위한 EmailJS 서비스 ID',
+                emailjsTemplateId: 'EmailJS 템플릿 ID',
+                emailjsTemplateIdPlaceholder: 'EmailJS 템플릿 ID를 입력하세요',
+                emailjsTemplateIdHelp: '이메일 형식을 위한 EmailJS 템플릿 ID',
+                save: '저장',
+                cancel: '취소'
                 },
                 // 관리자
                 admin: {

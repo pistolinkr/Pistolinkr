@@ -16,6 +16,7 @@ class GitHubDashboard {
         this.bindEvents();
         this.checkLoginStatus();
         this.setupI18n();
+        this.setupEmailJS();
     }
 
     setupI18n() {
@@ -26,6 +27,17 @@ class GitHubDashboard {
         
         // 초기 번역 적용
         this.updatePageTranslations();
+    }
+
+    setupEmailJS() {
+        // EmailJS 설정 초기화
+        if (window.EmailJSConfig && this.settings.emailjsPublicKey) {
+            window.EmailJSConfig.updateConfig(
+                this.settings.emailjsPublicKey,
+                this.settings.emailjsServiceId,
+                this.settings.emailjsTemplateId
+            );
+        }
     }
 
     updatePageTranslations() {
@@ -825,6 +837,11 @@ class GitHubDashboard {
             }
         }
         
+        // EmailJS 설정 로드
+        document.getElementById('emailjsPublicKey').value = this.settings.emailjsPublicKey || '';
+        document.getElementById('emailjsServiceId').value = this.settings.emailjsServiceId || '';
+        document.getElementById('emailjsTemplateId').value = this.settings.emailjsTemplateId || '';
+        
         this.openModal(modal);
     }
 
@@ -847,7 +864,21 @@ class GitHubDashboard {
             window.i18n.setLocale(languageSetting);
         }
 
+        // EmailJS 설정 저장
+        const emailjsPublicKey = document.getElementById('emailjsPublicKey').value.trim();
+        const emailjsServiceId = document.getElementById('emailjsServiceId').value.trim();
+        const emailjsTemplateId = document.getElementById('emailjsTemplateId').value.trim();
+        
+        this.settings.emailjsPublicKey = emailjsPublicKey;
+        this.settings.emailjsServiceId = emailjsServiceId;
+        this.settings.emailjsTemplateId = emailjsTemplateId;
+
         localStorage.setItem('githubDashboardSettings', JSON.stringify(this.settings));
+        
+        // EmailJS 설정 업데이트
+        if (emailjsPublicKey && emailjsServiceId && emailjsTemplateId) {
+            window.EmailJSConfig.updateConfig(emailjsPublicKey, emailjsServiceId, emailjsTemplateId);
+        }
         
         this.closeSettingsModal();
         this.setupAutoRefresh();
@@ -906,55 +937,69 @@ class GitHubDashboard {
             return;
         }
 
+        // 전송 버튼 비활성화 및 로딩 표시
+        const sendButton = document.getElementById('sendFeedback');
+        const originalText = sendButton.textContent;
+        sendButton.disabled = true;
+        sendButton.textContent = '전송 중...';
+
         try {
-            // 메일 링크 생성
-            const mailtoLink = this.createFeedbackMailtoLink(name, email, type, subject, message);
-            
-            // 새 창에서 메일 클라이언트 열기
-            window.open(mailtoLink, '_blank');
-            
-            // 성공 메시지 표시
-            this.showSuccess(window.i18n.t('feedback.success'));
-            
-            // 모달 닫기
-            this.closeFeedbackModal();
+            // EmailJS 초기화
+            if (window.EmailJSConfig) {
+                window.EmailJSConfig.init();
+            }
+
+            // 피드백 유형 라벨
+            const typeLabels = {
+                general: window.i18n.t('feedback.typeGeneral'),
+                bug: window.i18n.t('feedback.typeBug'),
+                feature: window.i18n.t('feedback.typeFeature'),
+                improvement: window.i18n.t('feedback.typeImprovement')
+            };
+
+            const typeLabel = typeLabels[type] || type;
+
+            // 피드백 데이터 구성
+            const feedbackData = {
+                name,
+                email,
+                type: typeLabel,
+                subject,
+                message
+            };
+
+            // EmailJS 템플릿 파라미터 생성
+            const templateParams = window.EmailJSConfig.createTemplateParams(feedbackData);
+
+            // EmailJS를 사용하여 이메일 전송
+            const response = await emailjs.send(
+                window.EmailJSConfig.SERVICE_ID,
+                window.EmailJSConfig.TEMPLATE_ID,
+                templateParams
+            );
+
+            if (response.status === 200) {
+                // 성공 메시지 표시
+                this.showSuccess(window.i18n.t('feedback.success'));
+                
+                // 모달 닫기
+                this.closeFeedbackModal();
+            } else {
+                // 오류 메시지 표시
+                this.showError(window.i18n.t('feedback.error'));
+            }
             
         } catch (error) {
             console.error('피드백 전송 오류:', error);
             this.showError(window.i18n.t('feedback.error'));
+        } finally {
+            // 버튼 상태 복원
+            sendButton.disabled = false;
+            sendButton.textContent = originalText;
         }
     }
 
-    createFeedbackMailtoLink(name, email, type, subject, message) {
-        const feedbackTypeLabels = {
-            general: window.i18n.t('feedback.typeGeneral'),
-            bug: window.i18n.t('feedback.typeBug'),
-            feature: window.i18n.t('feedback.typeFeature'),
-            improvement: window.i18n.t('feedback.typeImprovement')
-        };
 
-        const typeLabel = feedbackTypeLabels[type] || type;
-        
-        const emailSubject = `[GitHub Dashboard Feedback] ${subject}`;
-        const emailBody = `Hello,
-
-I'm sending feedback about the GitHub Dashboard.
-
-Name: ${name}
-Email: ${email}
-Feedback Type: ${typeLabel}
-Subject: ${subject}
-
-Message:
-${message}
-
----
-Sent from GitHub Dashboard (pistolinkr.com)`;
-
-        const mailtoLink = `mailto:pistolinkr@icloud.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        
-        return mailtoLink;
-    }
 
     loadSettings() {
         const saved = localStorage.getItem('githubDashboardSettings');

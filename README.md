@@ -118,6 +118,88 @@ http://localhost:8000
 - 통계 및 메트릭
 - 설정 및 관리자 패널
 - 알림 및 메시지
+- 피드백 모달
+
+## 📧 피드백 시스템 (EmailJS)
+
+사용자가 직접 피드백을 전송할 수 있는 시스템이 EmailJS를 사용하여 구현되어 있습니다.
+
+### 기능
+- **피드백 모달**: 푸터의 '피드백' 링크 클릭 시 열림
+- **구조화된 양식**: 이름, 이메일, 피드백 유형, 제목, 메시지
+- **자동 전송**: 사용자의 메일 앱 없이도 직접 전송
+- **다국어 지원**: 모든 피드백 UI 텍스트 번역
+- **EmailJS 통합**: 클라이언트 사이드 이메일 전송
+
+### 피드백 유형
+- 일반 피드백
+- 버그 신고
+- 기능 요청
+- 개선 제안
+
+### EmailJS 설정 방법
+
+#### 1. EmailJS 계정 생성
+1. [EmailJS.com](https://www.emailjs.com/)에 가입
+2. 무료 계정으로 시작 (월 200건 이메일)
+
+#### 2. 이메일 서비스 설정
+1. **Email Services** → **Add New Service**
+2. **Gmail** 또는 **Outlook** 선택
+3. 이메일 계정 연결
+4. **Service ID** 복사 (예: `service_abc123`)
+
+#### 3. 이메일 템플릿 생성
+1. **Email Templates** → **Create New Template**
+2. 템플릿 설정:
+   ```
+   To: {{to_email}}
+   From: {{from_name}} <{{from_email}}>
+   Subject: [GitHub Dashboard Feedback] {{subject}}
+   
+   안녕하세요,
+   
+   GitHub Dashboard에 대한 피드백이 도착했습니다.
+   
+   📋 피드백 정보:
+   • 이름: {{from_name}}
+   • 이메일: {{from_email}}
+   • 피드백 유형: {{feedback_type}}
+   • 제목: {{subject}}
+   
+   💬 메시지:
+   {{message}}
+   
+   ---
+   GitHub Dashboard (pistolinkr.com)에서 전송됨
+   ```
+3. **Template ID** 복사 (예: `template_xyz789`)
+
+#### 4. Public Key 확인
+1. **Account** → **API Keys**
+2. **Public Key** 복사 (예: `user_def456`)
+
+#### 5. 대시보드에서 설정
+1. Settings 모달 열기
+2. EmailJS 설정 섹션에서:
+   - **Public Key**: `user_def456`
+   - **Service ID**: `service_abc123`
+   - **Template ID**: `template_xyz789`
+3. 저장
+
+### 환경 변수 설정 (선택사항)
+```bash
+# EmailJS 설정
+EMAILJS_PUBLIC_KEY=your_emailjs_public_key_here
+EMAILJS_SERVICE_ID=your_emailjs_service_id_here
+EMAILJS_TEMPLATE_ID=your_emailjs_template_id_here
+```
+
+### 장점
+- **서버 없이 작동**: 클라이언트 사이드에서 직접 이메일 전송
+- **간편한 설정**: EmailJS 대시보드에서 쉽게 설정
+- **무료 티어**: 월 200건까지 무료
+- **실시간 전송**: 즉시 이메일 전송 확인
 
 ## 🎨 디자인 특징
 

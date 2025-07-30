@@ -308,6 +308,24 @@
                     </select>
                     <small data-i18n="settings.languageHelp">Choose your preferred language for the interface</small>
                 </div>
+
+                <div class="setting-group">
+                    <label for="emailjsPublicKey" data-i18n="settings.emailjsPublicKey">EmailJS Public Key</label>
+                    <input type="text" id="emailjsPublicKey" data-i18n-placeholder="settings.emailjsPublicKeyPlaceholder" placeholder="Enter your EmailJS public key">
+                    <small data-i18n="settings.emailjsPublicKeyHelp">Your EmailJS public key for feedback system</small>
+                </div>
+
+                <div class="setting-group">
+                    <label for="emailjsServiceId" data-i18n="settings.emailjsServiceId">EmailJS Service ID</label>
+                    <input type="text" id="emailjsServiceId" data-i18n-placeholder="settings.emailjsServiceIdPlaceholder" placeholder="Enter your EmailJS service ID">
+                    <small data-i18n="settings.emailjsServiceIdHelp">Your EmailJS service ID for email sending</small>
+                </div>
+
+                <div class="setting-group">
+                    <label for="emailjsTemplateId" data-i18n="settings.emailjsTemplateId">EmailJS Template ID</label>
+                    <input type="text" id="emailjsTemplateId" data-i18n-placeholder="settings.emailjsTemplateIdPlaceholder" placeholder="Enter your EmailJS template ID">
+                    <small data-i18n="settings.emailjsTemplateIdHelp">Your EmailJS template ID for email formatting</small>
+                </div>
                 <div class="setting-group">
                     <label for="githubToken">GitHub Token (Optional)</label>
                     <input type="password" id="githubToken" placeholder="Enter your personal access token">
@@ -723,6 +741,8 @@
     </div>
 
     <script src="js/database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="js/emailjs-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 
