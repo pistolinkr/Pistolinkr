@@ -1,3 +1,5 @@
+**[🇰🇷 한국어](KR)** | **[🇺🇸 English](EN)**
+
 # KR
 # https://pistolinkr.com
 
