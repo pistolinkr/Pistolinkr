@@ -1,6 +1,6 @@
 **[🇰🇷 한국어](KR)** | **[🇺🇸 English](EN)**
 
-# KR
+### KR
 # https://pistolinkr.com
 
 ## 🚀 주요 기능
@@ -270,7 +270,7 @@ EMAILJS_TEMPLATE_ID=your_emailjs_template_id_here
 
 
 ---
-# EN
+### EN
 # https://pistolinkr.com
 
 ## 🚀 Key Features
