@@ -1,4 +1,4 @@
-**[🇰🇷 한국어](#-KR)** | **[🇺🇸 English](#-EN)**
+**[🇰🇷 한국어](###-KR)** | **[🇺🇸 English](###-EN)**
 
 ###KR
 # https://pistolinkr.com
@@ -270,7 +270,7 @@ EMAILJS_TEMPLATE_ID=your_emailjs_template_id_here
 
 
 ---
-###EN
+### EN
 # https://pistolinkr.com
 
 ## 🚀 Key Features
