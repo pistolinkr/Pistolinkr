@@ -1,0 +1,27 @@
+{
+  "functions": {
+    "api/db.js": {
+      "maxDuration": 30
+    },
+    "api/blob.js": {
+      "maxDuration": 30
+    },
+    "api/project-settings.js": {
+      "maxDuration": 30
+    },
+    "api/edge-config.js": {
+      "maxDuration": 30
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' https://pistolinkr.github.io https://pistolinkr.com https://volume505.com https://ekmantransport.store https://gongsaeng-dichecker.com"
+        }
+      ]
+    }
+  ]
+} 

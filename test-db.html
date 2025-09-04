@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터베이스 연결 테스트 - Pistolinkr</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #007acc;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border-left: 4px solid #007acc;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #007acc;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background: #2d2d2d;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #005a9e;
+        }
+        
+        button.danger {
+            background: #dc3545;
+        }
+        
+        button.danger:hover {
+            background: #c82333;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result.success {
+            background: #1e3a2e;
+            border: 1px solid #28a745;
+            color: #28a745;
+        }
+        
+        .result.error {
+            background: #3a1e1e;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+        
+        .result.info {
+            background: #1e2a3a;
+            border: 1px solid #007acc;
+            color: #007acc;
+        }
+        
+        .data-list {
+            margin-top: 15px;
+        }
+        
+        .data-item {
+            background: #2d2d2d;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #007acc;
+        }
+        
+        .data-item h4 {
+            margin: 0 0 10px 0;
+            color: #007acc;
+        }
+        
+        .data-item p {
+            margin: 5px 0;
+            color: #b0b0b0;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status.connected {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status.disconnected {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 데이터베이스 연결 테스트</h1>
+        
+        <div class="test-section">
+            <h3>📊 데이터베이스 상태</h3>
+            <div id="dbStatus">
+                <span class="status disconnected">연결 확인 중...</span>
+            </div>
+            <button onclick="testConnection()">연결 테스트</button>
+            <div id="connectionResult" class="result info" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>➕ 새 데이터 추가</h3>
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" id="title" placeholder="제목을 입력하세요">
+            </div>
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea id="content" rows="3" placeholder="내용을 입력하세요"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="url">URL</label>
+                <input type="url" id="url" placeholder="https://example.com">
+            </div>
+            <div class="form-group">
+                <label for="category">카테고리</label>
+                <select id="category">
+                    <option value="project">프로젝트</option>
+                    <option value="article">아티클</option>
+                    <option value="link">링크</option>
+                    <option value="other">기타</option>
+                </select>
+            </div>
+            <button onclick="addData()">데이터 추가</button>
+            <div id="addResult" class="result info" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 데이터 목록</h3>
+            <button onclick="loadData()">데이터 로드</button>
+            <button onclick="clearData()" class="danger">모든 데이터 삭제</button>
+            <div id="dataList" class="data-list"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📁 Blob 저장소 테스트</h3>
+            <div class="form-group">
+                <label for="filename">파일명</label>
+                <input type="text" id="filename" placeholder="test.txt">
+            </div>
+            <div class="form-group">
+                <label for="fileContent">파일 내용</label>
+                <textarea id="fileContent" rows="3" placeholder="파일 내용을 입력하세요">Hello World!</textarea>
+            </div>
+            <button onclick="uploadFile()">파일 업로드</button>
+            <button onclick="listFiles()">파일 목록</button>
+            <div id="blobResult" class="result info" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script>
+        // 페이지 로드 시 연결 테스트
+        window.addEventListener('load', function() {
+            testConnection();
+        });
+
+        async function testConnection() {
+            const statusElement = document.getElementById('dbStatus');
+            const resultElement = document.getElementById('connectionResult');
+            
+            try {
+                statusElement.innerHTML = '<span class="status disconnected">연결 확인 중...</span>';
+                resultElement.style.display = 'none';
+                
+                const data = await window.dbAPI.getData();
+                
+                statusElement.innerHTML = '<span class="status connected">연결됨</span>';
+                resultElement.className = 'result success';
+                resultElement.innerHTML = `✅ 데이터베이스 연결 성공!\n총 ${data.length}개의 항목이 있습니다.`;
+                resultElement.style.display = 'block';
+                
+            } catch (error) {
+                statusElement.innerHTML = '<span class="status disconnected">연결 실패</span>';
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `❌ 연결 실패: ${error.message}`;
+                resultElement.style.display = 'block';
+            }
+        }
+
+        async function addData() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const url = document.getElementById('url').value;
+            const category = document.getElementById('category').value;
+            const resultElement = document.getElementById('addResult');
+            
+            if (!title) {
+                alert('제목을 입력해주세요.');
+                return;
+            }
+            
+            try {
+                const newItem = await window.dbAPI.addData({
+                    title,
+                    content,
+                    url,
+                    category
+                });
+                
+                resultElement.className = 'result success';
+                resultElement.innerHTML = `✅ 데이터 추가 성공!\nID: ${newItem.id}\n제목: ${newItem.title}`;
+                resultElement.style.display = 'block';
+                
+                // 폼 초기화
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+                document.getElementById('url').value = '';
+                document.getElementById('category').value = 'project';
+                
+                // 데이터 목록 새로고침
+                loadData();
+                
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `❌ 데이터 추가 실패: ${error.message}`;
+                resultElement.style.display = 'block';
+            }
+        }
+
+        async function loadData() {
+            const dataListElement = document.getElementById('dataList');
+            
+            try {
+                const data = await window.dbAPI.getData();
+                
+                if (data.length === 0) {
+                    dataListElement.innerHTML = '<p>저장된 데이터가 없습니다.</p>';
+                    return;
+                }
+                
+                dataListElement.innerHTML = data.map(item => `
+                    <div class="data-item">
+                        <h4>${item.title}</h4>
+                        <p><strong>ID:</strong> ${item.id}</p>
+                        <p><strong>내용:</strong> ${item.content || '내용 없음'}</p>
+                        <p><strong>URL:</strong> ${item.url || 'URL 없음'}</p>
+                        <p><strong>카테고리:</strong> ${item.category}</p>
+                        <p><strong>생성일:</strong> ${new Date(item.created_at).toLocaleString()}</p>
+                        <button onclick="deleteData(${item.id})" class="danger">삭제</button>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                dataListElement.innerHTML = `<p style="color: #dc3545;">데이터 로드 실패: ${error.message}</p>`;
+            }
+        }
+
+        async function deleteData(id) {
+            if (!confirm('정말로 이 항목을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                await window.dbAPI.deleteData(id);
+                alert('항목이 삭제되었습니다.');
+                loadData();
+            } catch (error) {
+                alert(`삭제 실패: ${error.message}`);
+            }
+        }
+
+        async function clearData() {
+            if (!confirm('정말로 모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                return;
+            }
+            
+            try {
+                const data = await window.dbAPI.getData();
+                for (const item of data) {
+                    await window.dbAPI.deleteData(item.id);
+                }
+                alert('모든 데이터가 삭제되었습니다.');
+                loadData();
+            } catch (error) {
+                alert(`삭제 실패: ${error.message}`);
+            }
+        }
+
+        async function uploadFile() {
+            const filename = document.getElementById('filename').value;
+            const content = document.getElementById('fileContent').value;
+            const resultElement = document.getElementById('blobResult');
+            
+            if (!filename) {
+                alert('파일명을 입력해주세요.');
+                return;
+            }
+            
+            try {
+                const url = await window.blobAPI.uploadFile(filename, content);
+                
+                resultElement.className = 'result success';
+                resultElement.innerHTML = `✅ 파일 업로드 성공!\nURL: ${url}`;
+                resultElement.style.display = 'block';
+                
+                // 폼 초기화
+                document.getElementById('filename').value = '';
+                document.getElementById('fileContent').value = 'Hello World!';
+                
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `❌ 파일 업로드 실패: ${error.message}`;
+                resultElement.style.display = 'block';
+            }
+        }
+
+        async function listFiles() {
+            const resultElement = document.getElementById('blobResult');
+            
+            try {
+                const files = await window.blobAPI.listFiles();
+                
+                resultElement.className = 'result info';
+                resultElement.innerHTML = `📁 파일 목록 (${files.length}개):\n${files.map(file => `- ${file.pathname} (${file.size} bytes)`).join('\n')}`;
+                resultElement.style.display = 'block';
+                
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `❌ 파일 목록 조회 실패: ${error.message}`;
+                resultElement.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html> 

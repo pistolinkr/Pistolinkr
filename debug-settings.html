@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 설정 디버깅 - Pistolinkr</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #007acc;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border-left: 4px solid #007acc;
+        }
+        
+        .debug-section h3 {
+            margin-top: 0;
+            color: #007acc;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .data-panel {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+        
+        .data-panel h4 {
+            margin-top: 0;
+            color: #007acc;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        
+        .data-item {
+            background: #1a1a1a;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #007acc;
+        }
+        
+        .data-item h5 {
+            margin: 0 0 5px 0;
+            color: #007acc;
+        }
+        
+        .data-item p {
+            margin: 3px 0;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status.active {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status.hidden {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .matching-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+        
+        .matching-status.matched {
+            background: #28a745;
+            color: white;
+        }
+        
+        .matching-status.not-matched {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .matching-status.no-settings {
+            background: #dc3545;
+            color: white;
+        }
+        
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #005a9e;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result.success {
+            background: #1e3a2e;
+            border: 1px solid #28a745;
+            color: #28a745;
+        }
+        
+        .result.error {
+            background: #3a1e1e;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+        
+        .result.info {
+            background: #1e2a3a;
+            border: 1px solid #007acc;
+            color: #007acc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 프로젝트 설정 디버깅</h1>
+        
+        <div class="debug-section">
+            <h3>📊 데이터 소스 확인</h3>
+            <button onclick="checkAllDataSources()">모든 데이터 소스 확인</button>
+            <button onclick="checkGitHubRepos()">GitHub 저장소 확인</button>
+            <button onclick="checkProjectSettings()">프로젝트 설정 확인</button>
+            <button onclick="checkMatching()">매칭 상태 확인</button>
+            <div id="dataSourceResult" class="result info" style="display: none;"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>📋 데이터 비교</h3>
+            <div class="data-grid">
+                <div class="data-panel">
+                    <h4>GitHub 저장소</h4>
+                    <div id="githubRepos"></div>
+                </div>
+                <div class="data-panel">
+                    <h4>프로젝트 설정</h4>
+                    <div id="projectSettings"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>🔗 매칭 결과</h3>
+            <div id="matchingResults"></div>
+        </div>
+    </div>
+
+    <script src="js/database.js"></script>
+    <script>
+        let githubRepos = [];
+        let projectSettings = [];
+
+        async function checkAllDataSources() {
+            const resultElement = document.getElementById('dataSourceResult');
+            resultElement.style.display = 'block';
+            resultElement.className = 'result info';
+            resultElement.innerHTML = '데이터 소스를 확인하는 중...';
+            
+            try {
+                // GitHub 저장소 로드
+                const username = 'pistolinkr';
+                const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
+                githubRepos = await response.json();
+                
+                // 프로젝트 설정 로드 (Edge Config + Postgres)
+                try {
+                    projectSettings = await window.edgeConfigAPI.getProjectSettings();
+                } catch (error) {
+                    console.log('Edge Config에서 로드 실패, Postgres에서 시도...');
+                    projectSettings = await window.projectSettingsAPI.getProjectSettings();
+                }
+                
+                resultElement.className = 'result success';
+                resultElement.innerHTML = `
+                    ✅ 데이터 소스 확인 완료!
+                    
+                    GitHub 저장소: ${githubRepos.length}개
+                    프로젝트 설정: ${projectSettings.length}개
+                    
+                    이제 "GitHub 저장소 확인" 및 "프로젝트 설정 확인" 버튼을 클릭하세요.
+                `;
+                
+                displayGitHubRepos();
+                displayProjectSettings();
+                checkMatching();
+                
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `❌ 오류 발생: ${error.message}`;
+            }
+        }
+
+        async function checkGitHubRepos() {
+            const resultElement = document.getElementById('dataSourceResult');
+            resultElement.style.display = 'block';
+            resultElement.className = 'result info';
+            resultElement.innerHTML = 'GitHub 저장소를 확인하는 중...';
+            
+            try {
+                const username = 'pistolinkr';
+                const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
+                githubRepos = await response.json();
+                
+                resultElement.className = 'result success';
+                resultElement.innerHTML = `✅ GitHub 저장소 로드 완료: ${githubRepos.length}개`;
+                
+                displayGitHubRepos();
+                
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `❌ GitHub 저장소 로드 실패: ${error.message}`;
+            }
+        }
+
+        async function checkProjectSettings() {
+            const resultElement = document.getElementById('dataSourceResult');
+            resultElement.style.display = 'block';
+            resultElement.className = 'result info';
+            resultElement.innerHTML = '프로젝트 설정을 확인하는 중...';
+            
+            try {
+                // Edge Config에서 먼저 시도
+                try {
+                    projectSettings = await window.edgeConfigAPI.getProjectSettings();
+                    resultElement.className = 'result success';
+                    resultElement.innerHTML = `✅ Edge Config에서 프로젝트 설정 로드 완료: ${projectSettings.length}개`;
+                } catch (error) {
+                    console.log('Edge Config 실패, Postgres에서 시도...');
+                    projectSettings = await window.projectSettingsAPI.getProjectSettings();
+                    resultElement.className = 'result success';
+                    resultElement.innerHTML = `✅ Postgres에서 프로젝트 설정 로드 완료: ${projectSettings.length}개`;
+                }
+                
+                displayProjectSettings();
+                
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `❌ 프로젝트 설정 로드 실패: ${error.message}`;
+            }
+        }
+
+        function displayGitHubRepos() {
+            const container = document.getElementById('githubRepos');
+            container.innerHTML = '';
+            
+            githubRepos.forEach(repo => {
+                const item = document.createElement('div');
+                item.className = 'data-item';
+                item.innerHTML = `
+                    <h5>${repo.name}</h5>
+                    <p><strong>설명:</strong> ${repo.description || '설명 없음'}</p>
+                    <p><strong>언어:</strong> ${repo.language || '언어 없음'}</p>
+                    <p><strong>스타:</strong> ${repo.stargazers_count}</p>
+                    <p><strong>업데이트:</strong> ${new Date(repo.updated_at).toLocaleDateString()}</p>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function displayProjectSettings() {
+            const container = document.getElementById('projectSettings');
+            container.innerHTML = '';
+            
+            if (projectSettings.length === 0) {
+                container.innerHTML = '<p style="color: #dc3545;">설정된 프로젝트가 없습니다.</p>';
+                return;
+            }
+            
+            projectSettings.forEach(setting => {
+                const item = document.createElement('div');
+                item.className = 'data-item';
+                item.innerHTML = `
+                    <h5>${setting.project_name}</h5>
+                    <p><strong>URL:</strong> ${setting.url}</p>
+                    <p><strong>설명:</strong> ${setting.description || '설명 없음'}</p>
+                    <p><strong>상태:</strong> <span class="status ${setting.status}">${setting.status}</span></p>
+                    <p><strong>숨김:</strong> <span class="status ${setting.hidden_for_user ? 'hidden' : 'active'}">${setting.hidden_for_user ? '예' : '아니오'}</span></p>
+                    <p><strong>업데이트:</strong> ${new Date(setting.updated_at).toLocaleDateString()}</p>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function checkMatching() {
+            const container = document.getElementById('matchingResults');
+            container.innerHTML = '';
+            
+            if (githubRepos.length === 0 || projectSettings.length === 0) {
+                container.innerHTML = '<p style="color: #ffc107;">먼저 GitHub 저장소와 프로젝트 설정을 로드하세요.</p>';
+                return;
+            }
+            
+            const matchingResults = [];
+            
+            // GitHub 저장소별로 매칭 확인
+            githubRepos.forEach(repo => {
+                const setting = projectSettings.find(s => s.project_name === repo.name);
+                const status = setting ? 'matched' : 'no-settings';
+                const statusText = setting ? '설정됨' : '설정 없음';
+                
+                matchingResults.push({
+                    repo: repo,
+                    setting: setting,
+                    status: status,
+                    statusText: statusText
+                });
+            });
+            
+            // 설정된 프로젝트 중 GitHub에 없는 것들 확인
+            projectSettings.forEach(setting => {
+                const repo = githubRepos.find(r => r.name === setting.project_name);
+                if (!repo) {
+                    matchingResults.push({
+                        repo: null,
+                        setting: setting,
+                        status: 'not-matched',
+                        statusText: 'GitHub에 없음'
+                    });
+                }
+            });
+            
+            // 결과 표시
+            matchingResults.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'data-item';
+                
+                if (result.repo) {
+                    item.innerHTML = `
+                        <h5>${result.repo.name}</h5>
+                        <p><strong>GitHub:</strong> ✅ 존재</p>
+                        <p><strong>설정:</strong> <span class="matching-status ${result.status}">${result.statusText}</span></p>
+                        ${result.setting ? `
+                            <p><strong>URL:</strong> ${result.setting.url}</p>
+                            <p><strong>숨김:</strong> ${result.setting.hidden_for_user ? '예' : '아니오'}</p>
+                        ` : ''}
+                    `;
+                } else {
+                    item.innerHTML = `
+                        <h5>${result.setting.project_name}</h5>
+                        <p><strong>GitHub:</strong> ❌ 없음</p>
+                        <p><strong>설정:</strong> ✅ 존재</p>
+                        <p><strong>URL:</strong> ${result.setting.url}</p>
+                    `;
+                }
+                
+                container.appendChild(item);
+            });
+        }
+
+        // 페이지 로드 시 자동으로 데이터 확인
+        window.addEventListener('load', function() {
+            checkAllDataSources();
+        });
+    </script>
+</body>
+</html> 

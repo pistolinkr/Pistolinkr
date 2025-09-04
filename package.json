@@ -1,0 +1,39 @@
+{
+  "name": "pistolinkr-dashboard",
+  "version": "1.0.0",
+  "description": "Personal GitHub Dashboard with admin features and URL embedding",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
+    "deploy": "git add . && git commit -m \"Update dashboard\" && git push",
+    "status": "git status",
+    "log": "git log --oneline -10",
+    "install-deps": "npm install"
+  },
+  "keywords": [
+    "github",
+    "dashboard",
+    "portfolio",
+    "admin",
+    "embed"
+  ],
+  "author": "pistolinkr",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pistolinkr/Pistolinkr.git"
+  },
+  "homepage": "https://pistolinkr.github.io/Pistolinkr",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.51.0",
+    "@vercel/blob": "^0.22.1",
+    "@vercel/edge-config": "^1.4.0",
+    "@vercel/postgres": "^0.10.0",
+    "emailjs-com": "^3.2.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.1"
+  }
+}
