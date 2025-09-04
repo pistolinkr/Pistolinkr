@@ -11,47 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/i18n.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/database.js"></script>
 </head>
 <body>
-    <!-- 로그인 화면 -->
-    <div id="loginScreen" class="login-screen">
-        <div class="login-container">
-            <div class="login-header">
-                <i class="fab fa-github"></i>
-                <h1 data-i18n="login.title">GitHub Dashboard</h1>
-                <p data-i18n="login.subtitle">Personal Project Management System</p>
-            </div>
-            <div class="login-form">
-                <div class="form-group">
-                    <label for="loginName" data-i18n="login.name">Name</label>
-                    <input type="text" id="loginName" data-i18n-placeholder="login.namePlaceholder" placeholder="Enter your name" autocomplete="username" autocapitalize="words">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword" data-i18n="login.password">Password</label>
-                    <div class="password-input">
-                        <input type="password" id="loginPassword" data-i18n-placeholder="login.passwordPlaceholder" placeholder="Enter your password" autocomplete="current-password">
-                        <button type="button" id="togglePassword" class="password-toggle" title="Show password" aria-label="Show/hide password">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                <button type="button" id="loginBtn" class="btn btn-primary login-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span data-i18n="login.loginButton">Login</span>
-                </button>
-                <div id="loginError" class="login-error" style="display: none;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span data-i18n="login.loginError">Invalid name or password.</span>
-                </div>
-            </div>
-            <div class="login-footer">
-                <p data-i18n="login.footer">Personal Dashboard - pistolinkr</p>
-            </div>
-        </div>
-    </div>
-
     <!-- 대시보드 콘텐츠 -->
-    <div id="dashboardContent" class="dashboard-content" style="display: none;">
+    <div id="dashboardContent" class="dashboard-content">
         <div class="container">
             <!-- 헤더 -->
             <header class="header">
@@ -81,14 +46,6 @@
                             <i class="fas fa-cog"></i>
                             <span data-i18n="header.settings">Settings</span>
                         </button>
-                        <button id="adminBtn" class="btn btn-warning" style="display: none;">
-                            <i class="fas fa-user-shield"></i>
-                            <span data-i18n="header.admin">Admin</span>
-                        </button>
-                        <button id="logoutBtn" class="btn btn-danger">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span data-i18n="header.logout">Logout</span>
-                        </button>
                     </div>
                 </div>
             </header>
@@ -99,634 +56,109 @@
                 <div class="search-section">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" data-i18n-placeholder="search.placeholder" placeholder="Search projects...">
+                        <input type="text" id="searchInput" data-i18n-placeholder="search.placeholder" placeholder="Search repositories...">
+                    </div>
+                    <div class="filters">
+                        <select id="languageFilter">
+                            <option value="" data-i18n="search.languageFilter">All Languages</option>
+                        </select>
+                        <select id="sortFilter">
+                            <option value="updated" data-i18n="search.sortOptions.updated">Recently Updated</option>
+                            <option value="created" data-i18n="search.sortOptions.created">Recently Created</option>
+                            <option value="name" data-i18n="search.sortOptions.name">Name</option>
+                            <option value="stars" data-i18n="search.sortOptions.stars">Most Stars</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- 통계 카드 -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-code"></i>
+                <!-- 통계 -->
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stats-item" data-type="repos">
+                            <i class="fas fa-folder"></i>
+                            <div class="stats-content">
+                                <span class="stats-number">0</span>
+                                <span class="stats-label" data-i18n="stats.repositories">Repositories</span>
+                            </div>
                         </div>
-                        <div class="stat-content">
-                            <h3 id="totalRepos">0</h3>
-                            <p data-i18n="stats.totalProjects">Total Projects</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
+                        <div class="stats-item" data-type="stars">
                             <i class="fas fa-star"></i>
+                            <div class="stats-content">
+                                <span class="stats-number">0</span>
+                                <span class="stats-label" data-i18n="stats.stars">Stars</span>
+                            </div>
                         </div>
-                        <div class="stat-content">
-                            <h3 id="totalStars">0</h3>
-                            <p data-i18n="stats.totalStars">Total Stars</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
+                        <div class="stats-item" data-type="forks">
                             <i class="fas fa-code-branch"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="totalForks">0</h3>
-                            <p data-i18n="stats.totalForks">Total Forks</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="totalWatchers">0</h3>
-                            <p data-i18n="stats.totalWatchers">Total Watchers</p>
+                            <div class="stats-content">
+                                <span class="stats-number">0</span>
+                                <span class="stats-label" data-i18n="stats.forks">Forks</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 프로젝트 그리드 -->
-                <div class="projects-section">
+                <!-- 저장소 목록 -->
+                <div class="repositories-section">
                     <div class="section-header">
-                        <h2>Project List</h2>
+                        <h2 data-i18n="repositories.title">My Repositories</h2>
                         <div class="view-toggle">
-                            <button class="view-btn active" data-view="grid" title="Grid View">
+                            <button class="view-btn active" data-view="grid">
                                 <i class="fas fa-th"></i>
                             </button>
-                            <button class="view-btn" data-view="list" title="List View">
+                            <button class="view-btn" data-view="list">
                                 <i class="fas fa-list"></i>
                             </button>
                         </div>
-                        <select id="languageFilter" class="filter-select" title="Language Filter">
-                            <option value="">All Languages</option>
-                        </select>
-                        <select id="sortFilter" class="filter-select" title="Sort By">
-                            <option value="updated">Recently Updated</option>
-                            <option value="created">Created Date</option>
-                            <option value="name">Name</option>
-                            <option value="stars">Stars</option>
-                        </select>
                     </div>
-                    <div id="projectsGrid" class="projects-grid">
-                        <!-- 프로젝트 카드들이 여기에 동적으로 추가됩니다 -->
-                    </div>
-                    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-                        <div class="spinner"></div>
-                        <p>Loading projects...</p>
+                    <div id="repositoriesContainer" class="repositories-grid">
+                        <!-- 저장소 카드들이 여기에 동적으로 추가됩니다 -->
                     </div>
                 </div>
             </main>
-            
-            <!-- 메인 푸터 -->
-            <footer class="main-footer">
-                <div class="footer-content">
-                    <div class="footer-section">
-                        <div class="footer-logo">
-                            <i class="fab fa-github"></i>
-                            <span data-i18n="footer.title">GitHub Dashboard</span>
-                        </div>
-                        <p class="footer-description" data-i18n="footer.description">
-                            Personal project management system for developers
-                        </p>
-                        <div class="footer-social">
-                            <a href="https://github.com/pistolinkr" target="_blank" class="social-link" title="GitHub">
-                                <i class="fab fa-github"></i>
-                            </a>
-                            <a href="https://pistolinkr.com" target="_blank" class="social-link" title="Website">
-                                <i class="fas fa-globe"></i>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="footer-section">
-                        <h4 data-i18n="footer.quickLinks">Quick Links</h4>
-                        <ul class="footer-links">
-                            <li><a href="#" class="footer-link" data-i18n="footer.dashboard">Dashboard</a></li>
-                            <li><a href="#" class="footer-link" data-i18n="footer.analytics">Analytics</a></li>
-                            <li><a href="#" class="footer-link" data-i18n="footer.favorites">Favorites</a></li>
-                            <li><a href="#" class="footer-link" data-i18n="footer.settings">Settings</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="footer-section">
-                        <h4 data-i18n="footer.support">Support</h4>
-                        <ul class="footer-links">
-                            <li><a href="#" class="footer-link" data-i18n="footer.documentation">Documentation</a></li>
-                            <li><a href="#" class="footer-link" data-i18n="footer.helpCenter">Help Center</a></li>
-                            <li><a href="mailto:pistolinkr@icloud.com" class="footer-link" data-i18n="footer.contact">Contact</a></li>
-                            <li><a href="#" class="footer-link" id="feedbackLink" data-i18n="footer.feedback">Feedback</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="footer-section">
-                        <h4 data-i18n="footer.systemInfo">System Info</h4>
-                        <div class="system-info">
-                            <div class="info-item">
-                                <span class="info-label" data-i18n="footer.version">Version:</span>
-                                <span class="info-value">1.0.0</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label" data-i18n="footer.status">Status:</span>
-                                <span class="info-value status-online" data-i18n="footer.online">Online</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label" data-i18n="footer.lastUpdated">Last Updated:</span>
-                                <span class="info-value" id="lastUpdateTime" data-i18n="footer.justNow">Just now</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="footer-bottom">
-                    <div class="footer-bottom-content">
-                        <p data-i18n="footer.copyright">&copy; 2024 GitHub Dashboard. Built with ❤️ by pistolinkr</p>
-                        <div class="footer-bottom-links">
-                            <a href="#" class="footer-link" data-i18n="footer.privacyPolicy">Privacy Policy</a>
-                            <a href="#" class="footer-link" data-i18n="footer.termsOfService">Terms of Service</a>
-                            <a href="#" class="footer-link" data-i18n="footer.cookiePolicy">Cookie Policy</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-            
-            <!-- 모바일 푸터 -->
-            <footer class="mobile-footer">
-                <div class="footer-actions">
-                    <button id="mobileRefreshBtn" class="footer-btn" title="Refresh">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Refresh</span>
-                    </button>
-                    <button id="mobileAnalyticsBtn" class="footer-btn" title="Analytics">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Analytics</span>
-                    </button>
-                    <button id="mobileFavoritesBtn" class="footer-btn" title="Favorites">
-                        <i class="fas fa-heart"></i>
-                        <span>Favorites</span>
-                    </button>
-                    <button id="mobileNotificationsBtn" class="footer-btn" title="Notifications">
-                        <i class="fas fa-bell"></i>
-                        <span>Notifications</span>
-                    </button>
-                    <button id="mobileSettingsBtn" class="footer-btn" title="Settings">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </button>
-                    <button id="mobileAdminBtn" class="footer-btn admin" title="Admin" style="display: none;">
-                        <i class="fas fa-user-shield"></i>
-                        <span>Admin</span>
-                    </button>
-                    <button id="mobileLogoutBtn" class="footer-btn logout" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </button>
-                </div>
-            </footer>
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="modal">
+    <!-- 설정 모달 -->
+    <div id="settingsModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-i18n="settings.title">Settings</h3>
-                <button class="close-btn">&times;</button>
+                <button class="close-btn" onclick="closeModal('settingsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
-                <!-- <div class="setting-group">
-                    <label for="githubUsername">GitHub 사용자명</label>
-                    <input type="text" id="githubUsername" placeholder="사용자명을 입력하세요" value="pistolinkr">
-                </div> -->
                 <div class="setting-group">
-                    <label for="languageSetting" data-i18n="settings.language">Language</label>
-                    <select id="languageSetting" class="setting-select">
-                        <option value="en">English</option>
-                        <option value="ko">한국어</option>
-                        <option value="ja">日本語</option>
-                        <option value="zh">中文</option>
-                        <option value="es">Español</option>
-                        <option value="fr">Français</option>
-                        <option value="de">Deutsch</option>
-                    </select>
-                    <small data-i18n="settings.languageHelp">Choose your preferred language for the interface</small>
-                </div>
-
-
-                <div class="setting-group">
-                    <label for="githubToken">GitHub Token (Optional)</label>
-                    <input type="password" id="githubToken" placeholder="Enter your personal access token">
-                    <small>Use a personal access token for more API requests</small>
-                    <div class="token-help">
-                        <button type="button" id="showTokenHelp" class="btn-link">How to create a token</button>
-                        <div id="tokenHelpContent" style="display: none; margin-top: 10px; padding: 10px; background: #1a1a1a; border-radius: 6px; font-size: 12px;">
-                            <ol>
-                                <li>Login to GitHub.com</li>
-                                <li>Settings → Developer settings → Personal access tokens → Tokens (classic)</li>
-                                <li>Click "Generate new token"</li>
-                                <li>Enter token name (e.g., "Dashboard Access")</li>
-                                <li>Set permissions: check <code>public_repo</code></li>
-                                <li>Generate token and copy it here</li>
-                            </ol>
-                        </div>
-                    </div>
+                    <label for="githubToken" data-i18n="settings.githubToken">GitHub Token</label>
+                    <input type="password" id="githubToken" placeholder="Enter your GitHub token">
+                    <p class="setting-help" data-i18n="settings.githubTokenHelp">Your GitHub personal access token for private repositories</p>
                 </div>
                 <div class="setting-group">
                     <label>
                         <input type="checkbox" id="autoRefresh">
-                        Auto refresh (every 5 minutes)
+                        <span data-i18n="settings.autoRefresh">Auto Refresh</span>
                     </label>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelSettings" data-i18n="settings.cancel">Cancel</button>
-                <button class="btn btn-primary" id="saveSettings" data-i18n="settings.save">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Project Detail Modal -->
-    <div id="projectModal" class="modal">
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h3 id="projectModalTitle">Project Site</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="projectModalContent">
-                    <div class="embed-container">
-                        <iframe id="projectIframe" src="" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                    <div class="project-info">
-                        <h4 id="projectInfoTitle">Project Information</h4>
-                        <p id="projectInfoDescription">Project description will be displayed here.</p>
-                        <div class="project-links">
-                            <a id="githubLink" href="#" target="_blank" class="btn btn-secondary">
-                                <i class="fab fa-github"></i>
-                                View on GitHub
-                            </a>
-                            <a id="liveSiteLink" href="#" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-external-link-alt"></i>
-                                Live Site
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Settings Modal -->
-    <div id="adminModal" class="modal">
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h3>Admin Settings</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="admin-section">
-                    <h4>Project URL Settings</h4>
-                    <p>Set the domain URL and description for each project.</p>
-                    
-                    <div class="project-url-settings">
-                        <div class="setting-item">
-                            <label for="projectSelect">Select Project</label>
-                            <select id="projectSelect" class="admin-select">
-                                <option value="">Choose a project</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <label for="projectUrl">Domain URL</label>
-                            <input type="url" id="projectUrl" placeholder="https://example.com" class="admin-input">
-                        </div>
-                        
-                        <div class="setting-item">
-                            <label for="projectDescription">Project Description</label>
-                            <textarea id="projectDescription" placeholder="Enter a brief description of the project" class="admin-textarea"></textarea>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <label for="projectStatus">Status</label>
-                            <select id="projectStatus" class="admin-select">
-                                <option value="active">Active</option>
-                                <option value="maintenance">Maintenance</option>
-                                <option value="archived">Archived</option>
-                            </select>
-                        </div>
-                        <div class="setting-item">
-                            <label>
-                                <input type="checkbox" id="projectHiddenForUser">
-                                Hide from regular users
-                            </label>
-                        </div>
-                        
-                        <div class="setting-actions">
-                            <button id="saveProjectSettings" class="btn btn-primary">
-                                <i class="fas fa-save"></i>
-                                Save
-                            </button>
-                            <button id="deleteProjectSettings" class="btn btn-danger">
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="admin-section">
-                    <h4>Configured Project List</h4>
-                    <div id="configuredProjects" class="configured-projects">
-                        <!-- Configured projects will be displayed here -->
-                    </div>
-                </div>
-
-                <div class="admin-section">
-                    <h4>Bulk Management</h4>
-                    <p>Manage multiple projects at once.</p>
-                    
-                    <div class="bulk-actions">
-                        <button id="bulkHideProjects" class="btn btn-warning">
-                            <i class="fas fa-eye-slash"></i>
-                            Hide Projects in Bulk
-                        </button>
-                        <button id="bulkShowProjects" class="btn btn-success">
-                            <i class="fas fa-eye"></i>
-                            Show Projects in Bulk
-                        </button>
-                        <button id="refreshProjects" class="btn btn-secondary">
-                            <i class="fas fa-sync-alt"></i>
-                            Refresh Project List
-                        </button>
-                    </div>
-                </div>
-
-                <div class="admin-section">
-                    <h4>User Management</h4>
-                    <p>Manage users who can log in.</p>
-                    
-                    <div class="user-management">
-                        <div class="setting-item">
-                            <label for="newUserName">New User Name</label>
-                            <input type="text" id="newUserName" placeholder="Enter user name" class="admin-input">
-                        </div>
-                        
-                        <div class="setting-item">
-                            <label>
-                                <input type="checkbox" id="newUserIsAdmin">
-                                Grant Admin Privileges
-                            </label>
-                        </div>
-                        
-                        <div class="setting-actions">
-                            <button id="addUser" class="btn btn-primary">
-                                <i class="fas fa-user-plus"></i>
-                                Add User
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="user-list">
-                        <h5>Registered User List</h5>
-                        <div id="registeredUsers" class="registered-users">
-                            <!-- Registered users will be displayed here -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="admin-section">
-                    <h4>Admin Tools</h4>
-                    <p>System management and monitoring tools.</p>
-                    
-                    <div class="admin-tools">
-                        <div class="tool-item">
-                            <h5>System Status</h5>
-                            <div class="system-status">
-                                <div class="status-item">
-                                    <span class="status-label">Database:</span>
-                                    <span class="status-value" id="dbStatus">Checking...</span>
-                                </div>
-                                <div class="status-item">
-                                    <span class="status-label">Total Projects:</span>
-                                    <span class="status-value" id="totalProjects">-</span>
-                                </div>
-                                <div class="status-item">
-                                    <span class="status-label">Hidden Projects:</span>
-                                    <span class="status-value" id="hiddenProjects">-</span>
-                                </div>
-                                <div class="status-item">
-                                    <span class="status-label">Registered Users:</span>
-                                    <span class="status-value" id="totalUsers">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Analytics Modal -->
-    <div id="analyticsModal" class="modal">
-        <div class="modal-content large">
-            <div class="modal-header">
-                <h3>Project Analytics</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="analytics-section">
-                    <h4>Statistics by Language</h4>
-                    <div id="languageChart" class="chart-container">
-                        <canvas id="languageChartCanvas"></canvas>
-                    </div>
-                </div>
-                
-                <div class="analytics-section">
-                    <h4>Activity Trends</h4>
-                    <div id="activityChart" class="chart-container">
-                        <canvas id="activityChartCanvas"></canvas>
-                    </div>
-                </div>
-                
-                <div class="analytics-section">
-                    <h4>Popular Projects</h4>
-                    <div id="popularProjects" class="popular-projects">
-                        <!-- Popular project list will be displayed here -->
-                    </div>
-                </div>
-                
-                <div class="analytics-section">
-                    <h4>Performance Metrics</h4>
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <h5>Average Stars</h5>
-                            <span id="avgStars">0</span>
-                        </div>
-                        <div class="metric-card">
-                            <h5>Average Forks</h5>
-                            <span id="avgForks">0</span>
-                        </div>
-                        <div class="metric-card">
-                            <h5>Most Active Language</h5>
-                            <span id="topLanguage">-</span>
-                        </div>
-                        <div class="metric-card">
-                            <h5>Recent Activity</h5>
-                            <span id="recentActivity">-</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Favorites Modal -->
-    <div id="favoritesModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Favorite Projects</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="favorites-section">
-                    <div class="favorites-header">
-                        <h4>Favorite Projects</h4>
-                        <button id="addToFavorites" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i>
-                            Add to Favorites
-                        </button>
-                    </div>
-                    <div id="favoritesList" class="favorites-list">
-                        <!-- Favorite list will be displayed here -->
-                    </div>
-                </div>
-                
-                <div class="favorites-section">
-                    <h4>Favorite Settings</h4>
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="autoFavoriteNew">
-                            Auto-favorite new projects
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="showFavoritesFirst">
-                            Show favorites at the top of the list
-                        </label>
-                    </div>
+                <div class="setting-group">
+                    <label for="refreshInterval" data-i18n="settings.refreshInterval">Refresh Interval (minutes)</label>
+                    <input type="number" id="refreshInterval" min="1" max="60" value="30">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelFavorites">Cancel</button>
-                <button class="btn btn-primary" id="saveFavorites">Save</button>
+                <button class="btn btn-secondary" onclick="closeModal('settingsModal')" data-i18n="settings.cancel">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()" data-i18n="settings.save">Save</button>
             </div>
         </div>
     </div>
 
-    <!-- Feedback Modal -->
-    <div id="feedbackModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-i18n="feedback.title">Send Feedback</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="feedback-form">
-                    <div class="setting-group">
-                        <label for="feedbackName" data-i18n="feedback.name">Your Name</label>
-                        <input type="text" id="feedbackName" data-i18n-placeholder="feedback.namePlaceholder" placeholder="Enter your name" required>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="feedbackEmail" data-i18n="feedback.email">Your Email</label>
-                        <input type="email" id="feedbackEmail" data-i18n-placeholder="feedback.emailPlaceholder" placeholder="Enter your email" required>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="feedbackType" data-i18n="feedback.type">Feedback Type</label>
-                        <select id="feedbackType" class="setting-select">
-                            <option value="general" data-i18n="feedback.typeGeneral">General Feedback</option>
-                            <option value="bug" data-i18n="feedback.typeBug">Bug Report</option>
-                            <option value="feature" data-i18n="feedback.typeFeature">Feature Request</option>
-                            <option value="improvement" data-i18n="feedback.typeImprovement">Improvement Suggestion</option>
-                        </select>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="feedbackSubject" data-i18n="feedback.subject">Subject</label>
-                        <input type="text" id="feedbackSubject" data-i18n-placeholder="feedback.subjectPlaceholder" placeholder="Brief description of your feedback" required>
-                    </div>
-                    
-                    <div class="setting-group">
-                        <label for="feedbackMessage" data-i18n="feedback.message">Message</label>
-                        <textarea id="feedbackMessage" rows="6" data-i18n-placeholder="feedback.messagePlaceholder" placeholder="Please provide detailed feedback..." required></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelFeedback" data-i18n="feedback.cancel">Cancel</button>
-                <button class="btn btn-primary" id="sendFeedback" data-i18n="feedback.send">Send Feedback</button>
-            </div>
-        </div>
+    <!-- 로딩 스피너 -->
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+        <p data-i18n="loading.message">Loading...</p>
     </div>
 
-    <!-- Notifications Modal -->
-    <div id="notificationsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Notification Center</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="notifications-section">
-                    <div class="notifications-header">
-                        <h4>Recent Notifications</h4>
-                        <button id="markAllRead" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-check-double"></i>
-                            Mark All as Read
-                        </button>
-                    </div>
-                    <div id="notificationsList" class="notifications-list">
-                        <!-- Notification list will be displayed here -->
-                    </div>
-                </div>
-                
-                <div class="notifications-section">
-                    <h4>Notification Settings</h4>
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="notifyNewStars">
-                            New Star Notifications
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="notifyNewForks">
-                            New Fork Notifications
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="notifyUpdates">
-                            Project Update Notifications
-                        </label>
-                    </div>
-                    <div class="setting-group">
-                        <label>
-                            <input type="checkbox" id="notifySystem">
-                            System Notifications
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelNotifications">Cancel</button>
-                <button class="btn btn-primary" id="saveNotifications">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="js/emailjs-config.js"></script>
+    <!-- 메인 스크립트 -->
     <script src="script.js"></script>
 </body>
 </html> 

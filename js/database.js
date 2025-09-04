@@ -1,397 +1,200 @@
-// 데이터베이스 API 유틸리티
-class DatabaseAPI {
-  constructor() {
-    this.baseURL = '/api';
-  }
-
-  // 데이터 조회
-  async getData() {
-    try {
-      const response = await fetch(`${this.baseURL}/db`);
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-      throw error;
+// Firebase 데이터베이스 유틸리티
+class FirebaseDatabase {
+    constructor() {
+        this.db = null;
+        this.init();
     }
-  }
 
-  // 데이터 추가
-  async addData(data) {
-    try {
-      const response = await fetch(`${this.baseURL}/db`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to add data:', error);
-      throw error;
+    async init() {
+        try {
+            // Firebase SDK 로드
+            await this.loadFirebaseSDK();
+            
+            // Firebase 초기화
+            const firebaseConfig = window.appConfig.getFirebaseConfig();
+            firebase.initializeApp(firebaseConfig);
+            
+            // Firestore 데이터베이스 초기화
+            this.db = firebase.firestore();
+            
+            console.log('Firebase 데이터베이스가 초기화되었습니다.');
+        } catch (error) {
+            console.error('Firebase 초기화 오류:', error);
+        }
     }
-  }
 
-  // 데이터 수정
-  async updateData(id, data) {
-    try {
-      const response = await fetch(`${this.baseURL}/db`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id, ...data })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to update data:', error);
-      throw error;
-    }
-  }
+    async loadFirebaseSDK() {
+        return new Promise((resolve, reject) => {
+            // Firebase SDK가 이미 로드되어 있는지 확인
+            if (window.firebase) {
+                resolve();
+                return;
+            }
 
-  // 데이터 삭제
-  async deleteData(id) {
-    try {
-      const response = await fetch(`${this.baseURL}/db?id=${id}`, {
-        method: 'DELETE'
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.message;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to delete data:', error);
-      throw error;
+            // Firebase SDK 로드
+            const script = document.createElement('script');
+            script.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+            script.onload = () => {
+                const firestoreScript = document.createElement('script');
+                firestoreScript.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+                firestoreScript.onload = resolve;
+                firestoreScript.onerror = reject;
+                document.head.appendChild(firestoreScript);
+            };
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
     }
-  }
+
+    // 프로젝트 데이터 저장
+    async saveProject(projectData) {
+        try {
+            const docRef = await this.db.collection('projects').add({
+                ...projectData,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { success: true, id: docRef.id };
+        } catch (error) {
+            console.error('프로젝트 저장 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 프로젝트 목록 가져오기
+    async getProjects() {
+        try {
+            const snapshot = await this.db.collection('projects')
+                .orderBy('updatedAt', 'desc')
+                .get();
+            
+            const projects = [];
+            snapshot.forEach(doc => {
+                projects.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            
+            return { success: true, data: projects };
+        } catch (error) {
+            console.error('프로젝트 목록 가져오기 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 프로젝트 업데이트
+    async updateProject(projectId, updateData) {
+        try {
+            await this.db.collection('projects').doc(projectId).update({
+                ...updateData,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('프로젝트 업데이트 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 프로젝트 삭제
+    async deleteProject(projectId) {
+        try {
+            await this.db.collection('projects').doc(projectId).delete();
+            return { success: true };
+        } catch (error) {
+            console.error('프로젝트 삭제 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 사용자 설정 저장
+    async saveUserSettings(settings) {
+        try {
+            await this.db.collection('userSettings').doc('default').set({
+                ...settings,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('사용자 설정 저장 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 사용자 설정 가져오기
+    async getUserSettings() {
+        try {
+            const doc = await this.db.collection('userSettings').doc('default').get();
+            if (doc.exists) {
+                return { success: true, data: doc.data() };
+            } else {
+                return { success: true, data: {} };
+            }
+        } catch (error) {
+            console.error('사용자 설정 가져오기 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 피드백 저장
+    async saveFeedback(feedbackData) {
+        try {
+            const docRef = await this.db.collection('feedback').add({
+                ...feedbackData,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { success: true, id: docRef.id };
+        } catch (error) {
+            console.error('피드백 저장 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 통계 데이터 저장
+    async saveAnalytics(analyticsData) {
+        try {
+            const docRef = await this.db.collection('analytics').add({
+                ...analyticsData,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { success: true, id: docRef.id };
+        } catch (error) {
+            console.error('통계 데이터 저장 오류:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // 실시간 데이터 구독
+    subscribeToProjects(callback) {
+        return this.db.collection('projects')
+            .orderBy('updatedAt', 'desc')
+            .onSnapshot(snapshot => {
+                const projects = [];
+                snapshot.forEach(doc => {
+                    projects.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                callback(projects);
+            });
+    }
+
+    // 구독 해제
+    unsubscribe(listener) {
+        if (listener) {
+            listener();
+        }
+    }
 }
 
-// Blob 저장소 API 유틸리티
-class BlobAPI {
-  constructor() {
-    this.baseURL = '/api/blob';
-  }
+// 전역 데이터베이스 인스턴스 생성
+const firebaseDB = new FirebaseDatabase();
 
-  // 파일 업로드
-  async uploadFile(filename, content, access = 'public') {
-    try {
-      const response = await fetch(this.baseURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ filename, content, access })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.url;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to upload file:', error);
-      throw error;
-    }
-  }
-
-  // 파일 목록 조회
-  async listFiles(prefix = '') {
-    try {
-      const response = await fetch(`${this.baseURL}?prefix=${prefix}`);
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.blobs;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to list files:', error);
-      throw error;
-    }
-  }
-
-  // 파일 삭제
-  async deleteFile(url) {
-    try {
-      const response = await fetch(this.baseURL, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.message;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to delete file:', error);
-      throw error;
-    }
-  }
+// 브라우저 환경에서 사용할 수 있도록 전역으로 노출
+if (typeof window !== 'undefined') {
+    window.firebaseDB = firebaseDB;
 }
 
-// 프로젝트 설정 API 유틸리티 (Postgres)
-class ProjectSettingsAPI {
-  constructor() {
-    this.baseURL = '/api/project-settings';
-  }
-
-  // 프로젝트 설정 조회
-  async getProjectSettings() {
-    try {
-      const response = await fetch(this.baseURL);
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to fetch project settings:', error);
-      throw error;
-    }
-  }
-
-  // 프로젝트 설정 저장/업데이트
-  async saveProjectSettings(projectName, settings) {
-    try {
-      const response = await fetch(this.baseURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          project_name: projectName,
-          url: settings.url,
-          description: settings.description,
-          status: settings.status,
-          hidden_for_user: settings.hiddenForUser
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to save project settings:', error);
-      throw error;
-    }
-  }
-
-  // 프로젝트 설정 삭제
-  async deleteProjectSettings(projectName) {
-    try {
-      const response = await fetch(`${this.baseURL}?project_name=${encodeURIComponent(projectName)}`, {
-        method: 'DELETE'
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.message;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to delete project settings:', error);
-      throw error;
-    }
-  }
-}
-
-// Edge Config API 유틸리티
-class EdgeConfigAPI {
-  constructor() {
-    this.baseURL = '/api/edge-config';
-  }
-
-  // 프로젝트 설정 조회
-  async getProjectSettings() {
-    try {
-      const response = await fetch(this.baseURL);
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to fetch project settings from Edge Config:', error);
-      throw error;
-    }
-  }
-
-  // 프로젝트 설정 저장/업데이트
-  async saveProjectSettings(projectName, settings) {
-    try {
-      const response = await fetch(this.baseURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          project_name: projectName,
-          url: settings.url,
-          description: settings.description,
-          status: settings.status,
-          hidden_for_user: settings.hiddenForUser
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.data;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to save project settings to Edge Config:', error);
-      throw error;
-    }
-  }
-
-  // 프로젝트 설정 삭제
-  async deleteProjectSettings(projectName) {
-    try {
-      const response = await fetch(`${this.baseURL}?project_name=${encodeURIComponent(projectName)}`, {
-        method: 'DELETE'
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        return result.message;
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      console.error('Failed to delete project settings from Edge Config:', error);
-      throw error;
-    }
-  }
-}
-
-// 전역 인스턴스 생성
-window.dbAPI = new DatabaseAPI();
-window.blobAPI = new BlobAPI();
-window.projectSettingsAPI = new ProjectSettingsAPI();
-window.edgeConfigAPI = new EdgeConfigAPI();
-
-// 사용 예시 함수들
-window.databaseUtils = {
-  // 대시보드 데이터 로드
-  async loadDashboardData() {
-    try {
-      const data = await window.dbAPI.getData();
-      console.log('Dashboard data loaded:', data);
-      return data;
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
-      return [];
-    }
-  },
-
-  // 새 항목 추가
-  async addDashboardItem(title, content, url, category) {
-    try {
-      const newItem = await window.dbAPI.addData({
-        title,
-        content,
-        url,
-        category
-      });
-      console.log('New item added:', newItem);
-      return newItem;
-    } catch (error) {
-      console.error('Failed to add item:', error);
-      throw error;
-    }
-  },
-
-  // 프로젝트 설정 로드 (Postgres)
-  async loadProjectSettings() {
-    try {
-      const settings = await window.projectSettingsAPI.getProjectSettings();
-      console.log('Project settings loaded:', settings);
-      return settings;
-    } catch (error) {
-      console.error('Failed to load project settings:', error);
-      return [];
-    }
-  },
-
-  // 프로젝트 설정 저장 (Postgres)
-  async saveProjectSettings(projectName, settings) {
-    try {
-      const result = await window.projectSettingsAPI.saveProjectSettings(projectName, settings);
-      console.log('Project settings saved:', result);
-      return result;
-    } catch (error) {
-      console.error('Failed to save project settings:', error);
-      throw error;
-    }
-  },
-
-  // 프로젝트 설정 로드 (Edge Config)
-  async loadProjectSettingsFromEdgeConfig() {
-    try {
-      const settings = await window.edgeConfigAPI.getProjectSettings();
-      console.log('Project settings loaded from Edge Config:', settings);
-      return settings;
-    } catch (error) {
-      console.error('Failed to load project settings from Edge Config:', error);
-      return [];
-    }
-  },
-
-  // 파일 업로드
-  async uploadDashboardFile(filename, content) {
-    try {
-      const url = await window.blobAPI.uploadFile(filename, content);
-      console.log('File uploaded:', url);
-      return url;
-    } catch (error) {
-      console.error('Failed to upload file:', error);
-      throw error;
-    }
-  }
-}; 
+export default firebaseDB; 
