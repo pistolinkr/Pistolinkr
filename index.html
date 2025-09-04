@@ -15,10 +15,45 @@
     <script src="js/database.js"></script>
 </head>
 <body>
-    <!-- 대시보드 콘텐츠 -->
+    <!-- Environment Variables Loader -->
+    <script>
+        // Load environment variables from .env file
+        async function loadEnvVariables() {
+            try {
+                const response = await fetch('/.env');
+                if (response.ok) {
+                    const envContent = await response.text();
+                    const envVars = {};
+                    
+                    envContent.split('\n').forEach(line => {
+                        const [key, ...valueParts] = line.split('=');
+                        if (key && valueParts.length > 0) {
+                            const value = valueParts.join('=').trim();
+                            if (!value.startsWith('#')) {
+                                envVars[key.trim()] = value;
+                            }
+                        }
+                    });
+                    
+                    // Make environment variables available globally
+                    window.process = window.process || {};
+                    window.process.env = { ...window.process.env, ...envVars };
+                    
+                    console.log('Environment variables loaded successfully');
+                }
+            } catch (error) {
+                console.warn('Could not load .env file:', error.message);
+            }
+        }
+        
+        // Load environment variables before other scripts
+        loadEnvVariables();
+    </script>
+
+    <!-- Dashboard Content -->
     <div id="dashboardContent" class="dashboard-content">
         <div class="container">
-            <!-- 헤더 -->
+            <!-- Header -->
             <header class="header">
                 <div class="header-content">
                     <div class="logo">
@@ -50,9 +85,9 @@
                 </div>
             </header>
 
-            <!-- 메인 콘텐츠 -->
+            <!-- Main Content -->
             <main class="main-content">
-                <!-- 검색 -->
+                <!-- Search -->
                 <div class="search-section">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
@@ -71,7 +106,7 @@
                     </div>
                 </div>
 
-                <!-- 통계 -->
+                <!-- Statistics -->
                 <div class="stats-section">
                     <div class="stats-grid">
                         <div class="stats-item" data-type="repos">
@@ -98,7 +133,7 @@
                     </div>
                 </div>
 
-                <!-- 저장소 목록 -->
+                <!-- Repository List -->
                 <div class="repositories-section">
                     <div class="section-header">
                         <h2 data-i18n="repositories.title">My Repositories</h2>
@@ -112,14 +147,14 @@
                         </div>
                     </div>
                     <div id="repositoriesContainer" class="repositories-grid">
-                        <!-- 저장소 카드들이 여기에 동적으로 추가됩니다 -->
+                        <!-- Repository cards will be dynamically added here -->
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- 설정 모달 -->
+    <!-- Settings Modal -->
     <div id="settingsModal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -152,13 +187,13 @@
         </div>
     </div>
 
-    <!-- 로딩 스피너 -->
+    <!-- Loading Spinner -->
     <div id="loadingSpinner" class="loading-spinner" style="display: none;">
         <div class="spinner"></div>
         <p data-i18n="loading.message">Loading...</p>
     </div>
 
-    <!-- 메인 스크립트 -->
+    <!-- Main Script -->
     <script src="script.js"></script>
 </body>
 </html> 
