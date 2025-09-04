@@ -1,4 +1,4 @@
-// Firebase 데이터베이스 유틸리티
+// Firebase Database Utility
 class FirebaseDatabase {
     constructor() {
         this.db = null;
@@ -7,31 +7,31 @@ class FirebaseDatabase {
 
     async init() {
         try {
-            // Firebase SDK 로드
+            // Load Firebase SDK
             await this.loadFirebaseSDK();
             
-            // Firebase 초기화
+            // Initialize Firebase
             const firebaseConfig = window.appConfig.getFirebaseConfig();
             firebase.initializeApp(firebaseConfig);
             
-            // Firestore 데이터베이스 초기화
+            // Initialize Firestore database
             this.db = firebase.firestore();
             
-            console.log('Firebase 데이터베이스가 초기화되었습니다.');
+            console.log('Firebase database initialized successfully.');
         } catch (error) {
-            console.error('Firebase 초기화 오류:', error);
+            console.error('Firebase initialization error:', error);
         }
     }
 
     async loadFirebaseSDK() {
         return new Promise((resolve, reject) => {
-            // Firebase SDK가 이미 로드되어 있는지 확인
+            // Check if Firebase SDK is already loaded
             if (window.firebase) {
                 resolve();
                 return;
             }
 
-            // Firebase SDK 로드
+            // Load Firebase SDK
             const script = document.createElement('script');
             script.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
             script.onload = () => {
@@ -46,7 +46,7 @@ class FirebaseDatabase {
         });
     }
 
-    // 프로젝트 데이터 저장
+    // Save project data
     async saveProject(projectData) {
         try {
             const docRef = await this.db.collection('projects').add({
@@ -56,12 +56,12 @@ class FirebaseDatabase {
             });
             return { success: true, id: docRef.id };
         } catch (error) {
-            console.error('프로젝트 저장 오류:', error);
+            console.error('Project save error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 프로젝트 목록 가져오기
+    // Get project list
     async getProjects() {
         try {
             const snapshot = await this.db.collection('projects')
@@ -78,12 +78,12 @@ class FirebaseDatabase {
             
             return { success: true, data: projects };
         } catch (error) {
-            console.error('프로젝트 목록 가져오기 오류:', error);
+            console.error('Project list fetch error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 프로젝트 업데이트
+    // Update project
     async updateProject(projectId, updateData) {
         try {
             await this.db.collection('projects').doc(projectId).update({
@@ -92,23 +92,23 @@ class FirebaseDatabase {
             });
             return { success: true };
         } catch (error) {
-            console.error('프로젝트 업데이트 오류:', error);
+            console.error('Project update error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 프로젝트 삭제
+    // Delete project
     async deleteProject(projectId) {
         try {
             await this.db.collection('projects').doc(projectId).delete();
             return { success: true };
         } catch (error) {
-            console.error('프로젝트 삭제 오류:', error);
+            console.error('Project delete error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 사용자 설정 저장
+    // Save user settings
     async saveUserSettings(settings) {
         try {
             await this.db.collection('userSettings').doc('default').set({
@@ -117,12 +117,12 @@ class FirebaseDatabase {
             });
             return { success: true };
         } catch (error) {
-            console.error('사용자 설정 저장 오류:', error);
+            console.error('User settings save error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 사용자 설정 가져오기
+    // Get user settings
     async getUserSettings() {
         try {
             const doc = await this.db.collection('userSettings').doc('default').get();
@@ -132,12 +132,12 @@ class FirebaseDatabase {
                 return { success: true, data: {} };
             }
         } catch (error) {
-            console.error('사용자 설정 가져오기 오류:', error);
+            console.error('User settings fetch error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 피드백 저장
+    // Save feedback
     async saveFeedback(feedbackData) {
         try {
             const docRef = await this.db.collection('feedback').add({
@@ -146,12 +146,12 @@ class FirebaseDatabase {
             });
             return { success: true, id: docRef.id };
         } catch (error) {
-            console.error('피드백 저장 오류:', error);
+            console.error('Feedback save error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 통계 데이터 저장
+    // Save analytics data
     async saveAnalytics(analyticsData) {
         try {
             const docRef = await this.db.collection('analytics').add({
@@ -160,12 +160,12 @@ class FirebaseDatabase {
             });
             return { success: true, id: docRef.id };
         } catch (error) {
-            console.error('통계 데이터 저장 오류:', error);
+            console.error('Analytics save error:', error);
             return { success: false, error: error.message };
         }
     }
 
-    // 실시간 데이터 구독
+    // Subscribe to real-time data
     subscribeToProjects(callback) {
         return this.db.collection('projects')
             .orderBy('updatedAt', 'desc')
@@ -181,7 +181,7 @@ class FirebaseDatabase {
             });
     }
 
-    // 구독 해제
+    // Unsubscribe from real-time updates
     unsubscribe(listener) {
         if (listener) {
             listener();
@@ -189,10 +189,10 @@ class FirebaseDatabase {
     }
 }
 
-// 전역 데이터베이스 인스턴스 생성
+// Create global database instance
 const firebaseDB = new FirebaseDatabase();
 
-// 브라우저 환경에서 사용할 수 있도록 전역으로 노출
+// Expose to global scope for browser environment
 if (typeof window !== 'undefined') {
     window.firebaseDB = firebaseDB;
 }

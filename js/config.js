@@ -1,4 +1,4 @@
-// Firebase 설정 유틸리티
+// Firebase Configuration Utility
 class Config {
   constructor() {
     this.config = this.loadConfig();
@@ -6,7 +6,7 @@ class Config {
 
   loadConfig() {
     return {
-      // Firebase 설정 - Firebase 콘솔에서 복사한 설정을 여기에 직접 입력
+      // Firebase Configuration - Copy settings from Firebase Console
       firebase: {
         apiKey: "your_firebase_api_key_here",
         authDomain: "your_project.firebaseapp.com",
@@ -16,7 +16,7 @@ class Config {
         appId: "your_app_id_here"
       },
       
-      // EmailJS 설정 - EmailJS 콘솔에서 복사한 설정을 여기에 직접 입력
+      // EmailJS Configuration - Copy settings from EmailJS Console
       emailjs: {
         publicKey: "your_emailjs_public_key_here",
         serviceId: "your_emailjs_service_id_here",
@@ -25,26 +25,26 @@ class Config {
     };
   }
 
-  // Firebase 설정 가져오기
+  // Get Firebase configuration
   getFirebaseConfig() {
     return this.config.firebase;
   }
 
-  // EmailJS 설정 가져오기
+  // Get EmailJS configuration
   getEmailJSConfig() {
     return this.config.emailjs;
   }
 
-  // 설정 유효성 검사
+  // Validate configuration
   validateConfig() {
     const errors = [];
     
     if (this.config.firebase.apiKey === "your_firebase_api_key_here") {
-      errors.push('Firebase API Key가 설정되지 않았습니다. Firebase 콘솔에서 설정을 복사하여 입력하세요.');
+      errors.push('Firebase API Key is not configured. Please copy settings from Firebase Console.');
     }
     
     if (this.config.firebase.projectId === "your_project_id_here") {
-      errors.push('Firebase Project ID가 설정되지 않았습니다. Firebase 콘솔에서 설정을 복사하여 입력하세요.');
+      errors.push('Firebase Project ID is not configured. Please copy settings from Firebase Console.');
     }
 
     return {
@@ -53,7 +53,7 @@ class Config {
     };
   }
 
-  // 설정 정보 출력 (디버깅용)
+  // Get configuration info (for debugging)
   getConfigInfo() {
     return {
       firebase: {
@@ -69,10 +69,10 @@ class Config {
   }
 }
 
-// 전역 설정 인스턴스 생성
+// Create global configuration instance
 const config = new Config();
 
-// 브라우저 환경에서 사용할 수 있도록 전역으로 노출
+// Expose to global scope for browser environment
 if (typeof window !== 'undefined') {
   window.appConfig = config;
 }
