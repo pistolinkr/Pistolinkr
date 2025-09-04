@@ -200,7 +200,7 @@ class GitHubDashboard {
             // Firebase에서 저장된 데이터 가져오기
             if (this.firebaseDB) {
                 const result = await this.firebaseDB.getProjects();
-                if (result.success) {
+            if (result.success) {
                     console.log('Firebase에서 프로젝트 데이터를 가져왔습니다:', result.data);
                 }
             }
@@ -226,11 +226,11 @@ class GitHubDashboard {
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
-
+            
             if (!response.ok) {
                 throw new Error(`GitHub API 오류: ${response.status}`);
             }
-
+            
             this.repos = await response.json();
             this.filteredRepos = [...this.repos];
             
@@ -261,7 +261,7 @@ class GitHubDashboard {
             `;
             return;
         }
-
+        
         const reposHTML = this.filteredRepos.map(repo => this.createRepoCard(repo)).join('');
         container.innerHTML = reposHTML;
     }
@@ -281,14 +281,14 @@ class GitHubDashboard {
                     </h3>
                     <div class="repo-stats">
                         <span class="stars">
-                            <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
                             ${stars}
                         </span>
                         <span class="forks">
-                            <i class="fas fa-code-branch"></i>
+                    <i class="fas fa-code-branch"></i>
                             ${forks}
                         </span>
-                    </div>
+                </div>
                 </div>
                 <p class="repo-description">${repo.description || '설명 없음'}</p>
                 <div class="repo-footer">
@@ -388,7 +388,7 @@ class GitHubDashboard {
         if (this.autoRefreshInterval) {
             clearInterval(this.autoRefreshInterval);
         }
-        
+
         if (this.settings.autoRefresh) {
             this.autoRefreshInterval = setInterval(() => {
                 this.refreshData();
@@ -408,7 +408,7 @@ class GitHubDashboard {
         try {
             const saved = localStorage.getItem('dashboardSettings');
             return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
-        } catch (error) {
+            } catch (error) {
             console.error('설정 로드 오류:', error);
             return defaultSettings;
         }

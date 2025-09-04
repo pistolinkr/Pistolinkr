@@ -1,15 +1,12 @@
 {
   "functions": {
-    "api/db.js": {
-      "maxDuration": 30
-    },
     "api/blob.js": {
       "maxDuration": 30
     },
-    "api/project-settings.js": {
+    "api/email-service.js": {
       "maxDuration": 30
     },
-    "api/edge-config.js": {
+    "api/send-feedback.js": {
       "maxDuration": 30
     }
   },

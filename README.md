@@ -384,12 +384,11 @@ It is recommended to use a GitHub Personal Access Token for more API requests.
 - The setting is automatically saved and maintained for the next visit
 
 ### Translation Scope
-- Login screen
 - Header and navigation
 - Search and filter options
 - Project card information
 - Statistics and metrics
-- Settings and admin panel
+- Settings panel
 - Notifications and messages
 - Feedback modal
 

@@ -27,10 +27,8 @@
   },
   "homepage": "https://pistolinkr.github.io/Pistolinkr",
   "dependencies": {
-    "@supabase/supabase-js": "^2.51.0",
     "@vercel/blob": "^0.22.1",
     "@vercel/edge-config": "^1.4.0",
-    "@vercel/postgres": "^0.10.0",
     "emailjs-com": "^3.2.0"
   },
   "devDependencies": {
