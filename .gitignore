@@ -47,9 +47,35 @@ node_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
+# Environment variables - ALL VARIATIONS
 .env
 .env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.staging
+.env.staging.local
+.env.*.local
+
+# Firebase config files
+firebase.json
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
+
+# Supabase config files
+.supabase/
+
+# API keys and secrets
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+config.json
 
 # Temporary files
 *.tmp
@@ -59,3 +85,16 @@ node_modules/
 dist/
 build/ 
 .vercel
+
+# Local development files
+.local/
+local/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
